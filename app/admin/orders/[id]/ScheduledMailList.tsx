@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface ScheduledMail {
   id: string
@@ -15,32 +16,23 @@ interface ScheduledMail {
   } | null
 }
 
-function parseSubjectFromText(generated_text: string | null): string | null {
-  if (!generated_text) return null
+function getSubject(mail: ScheduledMail): string | null {
+  if (mail.generated_subject) return mail.generated_subject
+  if (!mail.generated_text) return null
   try {
-    const parsed = JSON.parse(generated_text) as { subject?: string }
+    const parsed = JSON.parse(mail.generated_text) as { subject?: string }
     return parsed.subject ?? null
   } catch {
     return null
   }
 }
 
+function mailHasText(mail: ScheduledMail): boolean {
+  return !!(mail.generated_text || mail.generated_subject)
+}
+
 export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] }) {
-  const [subjects, setSubjects] = useState<Record<string, string>>(() => {
-    const init: Record<string, string> = {}
-    for (const m of mails) {
-      const subject = m.generated_subject ?? parseSubjectFromText(m.generated_text)
-      if (subject) init[m.id] = subject
-    }
-    return init
-  })
-  const [hasText, setHasText] = useState<Record<string, boolean>>(() => {
-    const init: Record<string, boolean> = {}
-    for (const m of mails) {
-      if (m.generated_text || m.generated_subject) init[m.id] = true
-    }
-    return init
-  })
+  const router = useRouter()
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -63,9 +55,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       })
       const data = await res.json() as { success?: boolean; subject?: string; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
-      setSubjects((s) => ({ ...s, [mail.id]: data.subject! }))
-      setHasText((t) => ({ ...t, [mail.id]: true }))
-      window.location.reload()
+      router.refresh()
     } catch (err) {
       setErrors((e) => ({ ...e, [mail.id]: (err as Error).message }))
     } finally {
@@ -95,7 +85,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
             <td style={{ padding: '0.5rem' }}>{mail.status}</td>
             <td style={{ padding: '0.5rem' }}>{mail.vouchers?.title ?? '—'}</td>
             <td style={{ padding: '0.5rem', color: '#a09880' }}>
-              {subjects[mail.id] ?? 'Not generated'}
+              {getSubject(mail) ?? 'Not generated'}
               {errors[mail.id] && (
                 <span style={{ color: 'red', marginLeft: '0.5rem', fontSize: '0.8rem' }}>
                   {errors[mail.id]}
@@ -120,7 +110,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
                 >
                   {loading[mail.id] ? 'Generating…' : 'Generate Text'}
                 </button>
-                {hasText[mail.id] && (
+                {mailHasText(mail) && (
                   <a
                     href={`/admin/scheduled-mails/${mail.id}/preview`}
                     style={{
