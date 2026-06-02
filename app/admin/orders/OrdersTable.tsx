@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface Order {
   id: string
@@ -13,6 +14,10 @@ interface Order {
 
 export default function OrdersTable({ orders }: { orders: Order[] }) {
   const router = useRouter()
+
+  useEffect(() => {
+    router.refresh()
+  }, [])
 
   return (
     <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>

@@ -138,7 +138,7 @@ export default function PreviewActions({
           fontSize: '0.9rem',
         }}
       >
-        {sendState === 'loading' ? 'Sending…' : sendState === 'done' ? 'Sent ✓' : sendState === 'error' ? 'Error — Retry' : 'Send Test Mail'}
+        {sendState === 'loading' ? 'Sending…' : sendState === 'done' ? 'Sent ✓' : sendState === 'error' ? 'Error — Retry' : 'Test an Empfänger senden'}
       </button>
       </div>
     </div>

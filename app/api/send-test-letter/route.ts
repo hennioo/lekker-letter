@@ -65,12 +65,11 @@ export async function POST(req: NextRequest) {
       }
 
       const emailSubject = generated?.subject ?? "🎁 Dein Lekker Letter";
-      const toAddress = process.env.TEST_MAIL_TO ?? 'henningdeliusfritz@gmail.com';
-      console.log('[send-test-letter] Sending test mail — to:', toAddress, '(real recipient:', recipient.email, ') | subject:', emailSubject);
+      console.log('[send-test-letter] Sending test mail — to:', recipient.email, '| subject:', emailSubject);
 
       const { data: resendData, error: resendError } = await resend.emails.send({
         from: "Lekker Letter <noreply@lekker-letter.de>",
-        to: toAddress,
+        to: recipient.email,
         subject: emailSubject,
         react: LekkerLetterEmail({
           recipientName: recipient.name,
