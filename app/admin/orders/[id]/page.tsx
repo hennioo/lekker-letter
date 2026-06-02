@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import ScheduledMailList from './ScheduledMailList'
+import DeleteOrderButton from './DeleteOrderButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -114,6 +115,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
           <ScheduledMailList mails={(mails ?? []) as unknown as Parameters<typeof ScheduledMailList>[0]['mails']} />
         )}
       </section>
+
+      <DeleteOrderButton orderId={order.id} />
     </main>
   )
 }

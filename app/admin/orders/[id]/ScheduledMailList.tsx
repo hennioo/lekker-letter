@@ -82,7 +82,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
             <td style={{ padding: '0.5rem' }}>{mail.send_date}</td>
             <td style={{ padding: '0.5rem' }}>{mail.status}</td>
             <td style={{ padding: '0.5rem' }}>{mail.vouchers?.title ?? '—'}</td>
-            <td style={{ padding: '0.5rem', color: subjects[mail.id] ? '#111' : '#aaa' }}>
+            <td style={{ padding: '0.5rem', color: '#a09880' }}>
               {subjects[mail.id] ?? 'Not generated'}
               {errors[mail.id] && (
                 <span style={{ color: 'red', marginLeft: '0.5rem', fontSize: '0.8rem' }}>

@@ -32,7 +32,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             key={order.id}
             onClick={() => router.push(`/admin/orders/${order.id}`)}
             style={{ borderBottom: '1px solid #eee', cursor: 'pointer' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f9f9f9')}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
           >
             <td style={{ padding: '0.5rem' }}>{order.giver_name}</td>

@@ -3,7 +3,13 @@ export const dynamic = 'force-dynamic'
 export default function AdminPage() {
   return (
     <main style={{ maxWidth: 600, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>Admin</h1>
+      <a
+        href="/"
+        style={{ color: '#666', textDecoration: 'none', fontSize: '0.85rem' }}
+      >
+        ← lekker-letter.de
+      </a>
+      <h1 style={{ marginTop: '0.5rem' }}>Admin</h1>
       <nav style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <a
           href="/admin/orders/new"
@@ -21,10 +27,11 @@ export default function AdminPage() {
           href="/admin/orders"
           style={{
             padding: '0.75rem 1.25rem',
-            border: '1px solid #ccc',
-            color: '#111',
+            backgroundColor: '#c8b89a',
+            color: '#0f0f0f',
             textDecoration: 'none',
             borderRadius: '4px',
+            fontWeight: 500,
           }}
         >
           All Orders
