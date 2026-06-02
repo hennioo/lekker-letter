@@ -95,11 +95,9 @@ export default function PreviewActions({
           : alreadyFinal
           ? `Mail ist bereits ${currentStatus}`
           : undefined
-        const bg = isDisabled && approveState !== 'error'
-          ? '#ccc'
-          : approveState === 'done' ? '#2d7a3f'
+        const bg = approveState === 'done' ? '#2d7a3f'
           : approveState === 'error' ? '#c0392b'
-          : approveState === 'loading' ? '#ccc'
+          : isDisabled ? '#ccc'
           : '#111'
         const label = approveState === 'loading' ? 'Approving…'
           : approveState === 'done' ? 'Approved ✓'
