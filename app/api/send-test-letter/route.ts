@@ -8,8 +8,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({})) as { scheduledMailId?: string };
+    console.log('[send-test-letter] Received body:', body);
 
     if (body.scheduledMailId) {
+      console.log('[send-test-letter] Path: scheduledMailId branch, id =', body.scheduledMailId);
       const { data: mail, error } = await supabaseAdmin
         .from("scheduled_mails")
         .select(`
@@ -20,6 +22,8 @@ export async function POST(req: NextRequest) {
         `)
         .eq("id", body.scheduledMailId)
         .single();
+
+      console.log('[send-test-letter] Supabase query result — error:', error, '| mail:', JSON.stringify(mail));
 
       if (error || !mail) {
         return NextResponse.json({ error: "Scheduled mail not found" }, { status: 404 });
@@ -35,7 +39,10 @@ export async function POST(req: NextRequest) {
         valid_until: string;
       } | null;
 
+      console.log('[send-test-letter] recipient:', recipient, '| voucher:', voucher);
+
       if (!recipient || !voucher) {
+        console.log('[send-test-letter] Aborting: missing recipient or voucher');
         return NextResponse.json({ error: "Missing recipient or voucher data" }, { status: 400 });
       }
 
@@ -43,14 +50,19 @@ export async function POST(req: NextRequest) {
       if (mail.generated_text) {
         try {
           generated = JSON.parse(mail.generated_text as string);
-        } catch {
+          console.log('[send-test-letter] Parsed generated_text OK:', generated);
+        } catch (parseErr) {
+          console.warn('[send-test-letter] JSON.parse of generated_text failed:', parseErr);
           // fall through to defaults
         }
+      } else {
+        console.warn('[send-test-letter] generated_text is null/empty — will use defaults');
       }
 
       const emailSubject = generated?.subject ?? "🎁 Dein Lekker Letter";
       // TODO: use recipient.email once custom domain is verified
       const toAddress = "henningdeliusfritz@gmail.com";
+      console.log('[send-test-letter] Sending mail — to:', toAddress, '| subject:', emailSubject);
 
       const { data: resendData, error: resendError } = await resend.emails.send({
         from: "Lekker Letter <onboarding@resend.dev>",
@@ -80,7 +92,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Fallback: hardcoded test
+    // Fallback: hardcoded test (no scheduledMailId in body)
+    console.log('[send-test-letter] Path: fallback (no scheduledMailId) — sending generic test mail');
     const { data: resendData, error: resendError } = await resend.emails.send({
       from: "Lekker Letter <onboarding@resend.dev>",
       to: "henningdeliusfritz@gmail.com",

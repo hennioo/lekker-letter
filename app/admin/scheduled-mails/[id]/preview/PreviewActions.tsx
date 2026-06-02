@@ -24,6 +24,7 @@ export default function PreviewActions({ scheduledMailId }: { scheduledMailId: s
   }
 
   async function handleSendTest() {
+    console.log('[PreviewActions] handleSendTest called, scheduledMailId =', scheduledMailId)
     setSendState('loading')
     try {
       const res = await fetch('/api/send-test-letter', {
@@ -31,9 +32,13 @@ export default function PreviewActions({ scheduledMailId }: { scheduledMailId: s
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduledMailId }),
       })
-      if (!res.ok) throw new Error('Failed')
+      console.log('[PreviewActions] Response status:', res.status)
+      const responseBody = await res.json().catch(() => null)
+      console.log('[PreviewActions] Response body:', responseBody)
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(responseBody)}`)
       setSendState('done')
-    } catch {
+    } catch (err) {
+      console.error('[PreviewActions] handleSendTest error:', err)
       setSendState('error')
     }
   }
