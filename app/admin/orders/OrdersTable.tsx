@@ -15,7 +15,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   const router = useRouter()
 
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', minWidth: 520 }}>
       <thead>
         <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
           <th style={{ padding: '0.5rem' }}>Giver</th>
@@ -49,5 +50,6 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         ))}
       </tbody>
     </table>
+    </div>
   )
 }
