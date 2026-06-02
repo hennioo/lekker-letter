@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface ScheduledMail {
   id: string
@@ -16,6 +17,7 @@ interface ScheduledMail {
 }
 
 export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] }) {
+  const router = useRouter()
   const [subjects, setSubjects] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {}
     for (const m of mails) {
@@ -54,6 +56,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
       setSubjects((s) => ({ ...s, [mail.id]: data.subject! }))
       setHasText((t) => ({ ...t, [mail.id]: true }))
+      router.refresh()
     } catch (err) {
       setErrors((e) => ({ ...e, [mail.id]: (err as Error).message }))
     } finally {
