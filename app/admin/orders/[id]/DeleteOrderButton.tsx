@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function DeleteOrderButton({ orderId }: { orderId: string }) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -25,7 +23,7 @@ export default function DeleteOrderButton({ orderId }: { orderId: string }) {
       })
       const data = await res.json() as { success?: boolean; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Löschen fehlgeschlagen')
-      router.push('/admin/orders')
+      window.location.href = '/admin/orders'
     } catch (err) {
       setError((err as Error).message)
       setLoading(false)
