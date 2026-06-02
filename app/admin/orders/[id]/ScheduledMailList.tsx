@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface ScheduledMail {
   id: string
@@ -32,7 +31,6 @@ function mailHasText(mail: ScheduledMail): boolean {
 }
 
 export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] }) {
-  const router = useRouter()
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   // Local overrides so the UI updates immediately after generation, without depending
@@ -68,7 +66,6 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       const data = await res.json() as { success?: boolean; subject?: string; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
       setGeneratedOverrides((g) => ({ ...g, [mail.id]: { subject: data.subject ?? '' } }))
-      router.refresh()
     } catch (err) {
       setErrors((e) => ({ ...e, [mail.id]: (err as Error).message }))
     } finally {

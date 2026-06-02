@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { revalidatePath } from 'next/cache'
 import { generateEmailText } from '@/lib/generateEmailText'
 
 export async function POST(req: NextRequest) {
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save generated text', detail: updateError.message }, { status: 500 })
     }
 
+    revalidatePath(`/admin/orders/${mail.order_id}`)
     return NextResponse.json({ success: true, ...generated })
   } catch (err) {
     console.error('[generate-letter-text] Unhandled error:', err)
