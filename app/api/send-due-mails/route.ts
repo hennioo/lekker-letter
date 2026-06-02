@@ -36,7 +36,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
   let sent = 0;
   let failed = 0;
-  let skipped = 0;
+  const skipped = 0;
 
   for (const mail of dueMails ?? []) {
     const recipient = mail.recipients as unknown as { name: string; email: string } | null;
