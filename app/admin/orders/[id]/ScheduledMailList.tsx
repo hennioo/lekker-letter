@@ -78,7 +78,8 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
   }
 
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', minWidth: 600 }}>
       <thead>
         <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
           <th style={{ padding: '0.5rem' }}>Send Date</th>
@@ -143,5 +144,6 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
         ))}
       </tbody>
     </table>
+    </div>
   )
 }
