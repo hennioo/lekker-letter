@@ -32,6 +32,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       send_date,
       status,
       generated_subject,
+      generated_text,
       voucher_id,
       vouchers (title, description)
     `)

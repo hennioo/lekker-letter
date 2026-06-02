@@ -11,61 +11,61 @@ import {
 
 interface LekkerLetterEmailProps {
   recipientName?: string;
+  subject?: string;
+  intro?: string;
+  voucherTransition?: string;
+  closing?: string;
   voucherTitle?: string;
-  locationName?: string;
-  locationAddress?: string;
+  voucherPartner?: string;
+  voucherAddress?: string;
   voucherCode?: string;
-  validUntil?: string;
+  voucherValidUntil?: string;
 }
 
 export default function LekkerLetterEmail({
   recipientName = "Anna",
+  subject = "Ein kleines Geschenk wartet auf dich 🎁",
+  intro = "jemand Besonderes hat an dich gedacht — und dir mit diesem Brief einen kleinen Moment zum Genießen geschickt. Nimm dir die Zeit, lass den Alltag kurz pausieren, und stoß auf die schönen Dinge an.",
+  voucherTransition,
+  closing = "Wir hoffen, du genießt jeden Schluck. Prost! 🥂",
   voucherTitle = "Zwei Drinks nach Wahl",
-  locationName = "Bar Schmitz, Köln",
-  locationAddress = "Aachener Str. 28, 50674 Köln",
+  voucherPartner = "Bar Schmitz, Köln",
+  voucherAddress = "Aachener Str. 28, 50674 Köln",
   voucherCode = "LEKKER-TEST-001",
-  validUntil = "31.12.2025",
+  voucherValidUntil = "31.12.2025",
 }: LekkerLetterEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Ein kleines Geschenk wartet auf dich 🎁</Preview>
+      <Preview>{subject}</Preview>
       <Body style={body}>
         <Container style={container}>
-          {/* Header */}
           <Section style={header}>
             <Heading style={headerText}>Lekker Letter</Heading>
           </Section>
 
-          {/* Greeting */}
           <Section style={content}>
             <Text style={greeting}>Hey {recipientName},</Text>
-            <Text style={message}>
-              jemand Besonderes hat an dich gedacht — und dir mit diesem Brief
-              einen kleinen Moment zum Genießen geschickt. Nimm dir die Zeit,
-              lass den Alltag kurz pausieren, und stoß auf die schönen Dinge an.
-            </Text>
+            <Text style={message}>{intro}</Text>
+            {voucherTransition && (
+              <Text style={message}>{voucherTransition}</Text>
+            )}
           </Section>
 
-          {/* Voucher Card */}
           <Section style={voucherCard}>
             <Text style={voucherTitleStyle}>{voucherTitle}</Text>
-            <Text style={voucherLocation}>{locationName}</Text>
-            <Text style={voucherAddressStyle}>{locationAddress}</Text>
+            <Text style={voucherLocation}>{voucherPartner}</Text>
+            <Text style={voucherAddressStyle}>{voucherAddress}</Text>
             <Section style={divider} />
             <Text style={codeLabel}>Dein Code</Text>
             <Text style={codeText}>{voucherCode}</Text>
-            <Text style={validText}>Gültig bis {validUntil}</Text>
+            <Text style={validText}>Gültig bis {voucherValidUntil}</Text>
           </Section>
 
-          {/* Closing */}
           <Section style={content}>
-            <Text style={closing}>
-              Wir hoffen, du genießt jeden Schluck. Prost! 🥂
-            </Text>
+            <Text style={closingStyle}>{closing}</Text>
           </Section>
 
-          {/* Footer */}
           <Section style={footer}>
             <Text style={footerText}>
               Mit Liebe verschickt von Lekker Letter
@@ -187,7 +187,7 @@ const validText: React.CSSProperties = {
   margin: "0",
 };
 
-const closing: React.CSSProperties = {
+const closingStyle: React.CSSProperties = {
   fontSize: "16px",
   color: "#444444",
   lineHeight: "1.7",

@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import OrdersTable from './OrdersTable'
+import SendDueMailsButton from './SendDueMailsButton'
 
 export default async function OrdersPage() {
   const { data: orders, error } = await supabaseAdmin
@@ -24,19 +25,22 @@ export default async function OrdersPage() {
           </a>
           <h1 style={{ margin: '0.25rem 0 0' }}>All Orders</h1>
         </div>
-        <a
-          href="/admin/orders/new"
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#111',
-            color: '#fff',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontSize: '0.9rem',
-          }}
-        >
-          + New Order
-        </a>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <SendDueMailsButton />
+          <a
+            href="/admin/orders/new"
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#111',
+              color: '#fff',
+              textDecoration: 'none',
+              borderRadius: '4px',
+              fontSize: '0.9rem',
+            }}
+          >
+            + New Order
+          </a>
+        </div>
       </div>
 
       {error && (

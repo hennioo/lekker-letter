@@ -7,6 +7,7 @@ interface ScheduledMail {
   send_date: string
   status: string
   generated_subject: string | null
+  generated_text: string | null
   voucher_id: string | null
   vouchers: {
     title: string
@@ -19,6 +20,13 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
     const init: Record<string, string> = {}
     for (const m of mails) {
       if (m.generated_subject) init[m.id] = m.generated_subject
+    }
+    return init
+  })
+  const [hasText, setHasText] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {}
+    for (const m of mails) {
+      if (m.generated_text) init[m.id] = true
     }
     return init
   })
@@ -45,6 +53,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       const data = await res.json() as { success?: boolean; subject?: string; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
       setSubjects((s) => ({ ...s, [mail.id]: data.subject! }))
+      setHasText((t) => ({ ...t, [mail.id]: true }))
     } catch (err) {
       setErrors((e) => ({ ...e, [mail.id]: (err as Error).message }))
     } finally {
@@ -82,22 +91,41 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
               )}
             </td>
             <td style={{ padding: '0.5rem' }}>
-              <button
-                onClick={() => handleGenerate(mail)}
-                disabled={loading[mail.id]}
-                style={{
-                  padding: '0.3rem 0.75rem',
-                  backgroundColor: loading[mail.id] ? '#ccc' : '#111',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: loading[mail.id] ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {loading[mail.id] ? 'Generating…' : 'Generate Text'}
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  onClick={() => handleGenerate(mail)}
+                  disabled={loading[mail.id]}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    backgroundColor: loading[mail.id] ? '#ccc' : '#111',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: loading[mail.id] ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {loading[mail.id] ? 'Generating…' : 'Generate Text'}
+                </button>
+                {hasText[mail.id] && (
+                  <a
+                    href={`/admin/scheduled-mails/${mail.id}/preview`}
+                    style={{
+                      padding: '0.3rem 0.75rem',
+                      backgroundColor: '#f5f5f0',
+                      color: '#333',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Preview
+                  </a>
+                )}
+              </div>
             </td>
           </tr>
         ))}
