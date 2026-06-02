@@ -1,3 +1,6 @@
+'use client'
+
+import { useFormState } from 'react-dom'
 import { createOrder } from './actions'
 
 const inputStyle = {
@@ -24,6 +27,8 @@ const fieldsetStyle = {
 }
 
 export default function NewOrderPage() {
+  const [state, formAction] = useFormState(createOrder, null)
+
   return (
     <main style={{ maxWidth: 600, margin: '2rem auto', padding: '0 1rem' }}>
       <a href="/admin" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
@@ -31,7 +36,21 @@ export default function NewOrderPage() {
       </a>
       <h1 style={{ marginTop: '0.5rem' }}>New Order</h1>
 
-      <form action={createOrder} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {state?.error && (
+        <div style={{
+          padding: '0.75rem 1rem',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fca5a5',
+          borderRadius: '4px',
+          color: '#c0392b',
+          fontSize: '0.9rem',
+          marginBottom: '1.25rem',
+        }}>
+          {state.error}
+        </div>
+      )}
+
+      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <fieldset style={fieldsetStyle}>
           <legend style={{ fontWeight: 600, padding: '0 0.5rem' }}>Giver</legend>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

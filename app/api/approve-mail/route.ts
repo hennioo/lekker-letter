@@ -7,6 +7,20 @@ export async function POST(req: NextRequest) {
     if (!scheduledMailId) {
       return NextResponse.json({ error: 'Missing scheduledMailId' }, { status: 400 })
     }
+
+    const { data: mail, error: fetchError } = await supabaseAdmin
+      .from('scheduled_mails')
+      .select('status')
+      .eq('id', scheduledMailId)
+      .single()
+
+    if (fetchError || !mail) {
+      return NextResponse.json({ error: 'Scheduled mail not found' }, { status: 404 })
+    }
+    if (mail.status === 'sent' || mail.status === 'cancelled') {
+      return NextResponse.json({ error: `Cannot approve a mail with status "${mail.status}"` }, { status: 409 })
+    }
+
     const { error } = await supabaseAdmin
       .from('scheduled_mails')
       .update({ status: 'approved' })

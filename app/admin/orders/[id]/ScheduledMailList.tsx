@@ -41,6 +41,10 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       setErrors((e) => ({ ...e, [mail.id]: 'No voucher linked to this mail' }))
       return
     }
+    if (mailHasText(mail)) {
+      const confirmed = window.confirm('Bereits generierter Text vorhanden. Wirklich überschreiben?')
+      if (!confirmed) return
+    }
     setLoading((l) => ({ ...l, [mail.id]: true }))
     setErrors((e) => ({ ...e, [mail.id]: '' }))
     try {

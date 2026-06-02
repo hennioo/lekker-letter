@@ -5,7 +5,8 @@ import LekkerLetterEmail from "@/emails/LekkerLetterEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function formatDateDE(iso: string): string {
+function formatDateDE(iso: string | null | undefined): string {
+  if (!iso) return '–'
   const [y, m, d] = iso.split('-')
   return `${d}.${m}.${y}`
 }
@@ -36,7 +37,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
   let sent = 0;
   let failed = 0;
-  const skipped = 0;
+  let skipped = 0;
 
   for (const mail of dueMails ?? []) {
     const recipient = mail.recipients as unknown as { name: string; email: string } | null;
@@ -51,11 +52,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
     if (!recipient || !voucher) {
       console.error(`[send-due-mails] Mail ${mail.id} missing recipient or voucher — skipping`);
-      await supabaseAdmin
-        .from("scheduled_mails")
-        .update({ status: "failed" })
-        .eq("id", mail.id);
-      failed++;
+      skipped++;
       continue;
     }
 
@@ -82,7 +79,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
           voucherTransition: generated?.voucher_transition,
           closing: generated?.closing,
           voucherTitle: voucher.title,
-          voucherPartner: `${voucher.partner_name}, ${voucher.city}`,
+          voucherPartner: [voucher.partner_name, voucher.city].filter(Boolean).join(', '),
           voucherAddress: voucher.address,
           voucherCode: voucher.voucher_code,
           voucherValidUntil: formatDateDE(voucher.valid_until),
@@ -99,12 +96,14 @@ async function handler(req: NextRequest): Promise<NextResponse> {
         .eq("id", mail.id);
 
       if (updateError) {
-        console.error(`[send-due-mails] Mail ${mail.id} sent but status update failed:`, updateError.message);
-        failed++;
+        // Mail was delivered — count as sent even if the DB update failed.
+        // The status remains 'approved', so a future cron run would re-send.
+        // This is preferable to silently marking it failed (which would skip it forever).
+        console.error(`[send-due-mails] Mail ${mail.id} sent but status update failed — NEEDS MANUAL CHECK:`, updateError.message);
       } else {
         console.log(`[send-due-mails] Sent mail ${mail.id} to ${recipient.email}`);
-        sent++;
       }
+      sent++;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[send-due-mails] Failed to send mail ${mail.id}:`, message);

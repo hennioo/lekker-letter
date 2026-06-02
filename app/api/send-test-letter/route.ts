@@ -65,9 +65,8 @@ export async function POST(req: NextRequest) {
       }
 
       const emailSubject = generated?.subject ?? "🎁 Dein Lekker Letter";
-      // TODO: use recipient.email once custom domain is verified
-      const toAddress = "henningdeliusfritz@gmail.com";
-      console.log('[send-test-letter] Sending mail — to:', toAddress, '| subject:', emailSubject);
+      const toAddress = process.env.TEST_MAIL_TO ?? 'henningdeliusfritz@gmail.com';
+      console.log('[send-test-letter] Sending test mail — to:', toAddress, '(real recipient:', recipient.email, ') | subject:', emailSubject);
 
       const { data: resendData, error: resendError } = await resend.emails.send({
         from: "Lekker Letter <noreply@lekker-letter.de>",

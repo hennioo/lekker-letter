@@ -25,8 +25,6 @@ const DURATIONS = [
   { value: 6, label: "6 Monate" },
 ];
 
-const today = new Date().toISOString().split("T")[0];
-
 const s = {
   page: {
     backgroundColor: "#0f0f0f",
@@ -181,6 +179,7 @@ type Fields = {
 
 export default function NewOrderPage() {
   const router = useRouter();
+  const today = new Date().toISOString().split("T")[0];
 
   const [giverName, setGiverName] = useState("");
   const [giverEmail, setGiverEmail] = useState("");

@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 interface Props {
   orderId: string;
@@ -27,6 +22,7 @@ interface ScheduledMail {
 }
 
 function formatDate(iso: string): string {
+  if (!iso) return '–';
   const [year, month, day] = iso.split("-");
   return `${day}.${month}.${year}`;
 }

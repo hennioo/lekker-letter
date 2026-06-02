@@ -58,7 +58,7 @@ export default async function PreviewPage({ params }: PageProps) {
       voucherTransition: generated.voucher_transition,
       closing: generated.closing,
       voucherTitle: voucher?.title,
-      voucherPartner: voucher ? `${voucher.partner_name}, ${voucher.city}` : undefined,
+      voucherPartner: voucher ? [voucher.partner_name, voucher.city].filter(Boolean).join(', ') : undefined,
       voucherAddress: voucher?.address,
       voucherCode: voucher?.voucher_code,
       voucherValidUntil: voucher?.valid_until ? formatDateDE(voucher.valid_until) : undefined,
@@ -88,7 +88,11 @@ export default async function PreviewPage({ params }: PageProps) {
         </dl>
       </section>
 
-      <PreviewActions scheduledMailId={params.id} initialStatus={mail.status} />
+      <PreviewActions
+        scheduledMailId={params.id}
+        initialStatus={mail.status}
+        hasGeneratedText={!!mail.generated_text}
+      />
 
       <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999' }}>
         Email Preview

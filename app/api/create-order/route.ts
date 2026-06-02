@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
 
+// setUTCMonth overflows when the day doesn't exist in the target month (e.g. Jan 31 + 1 month → Mar 2/3).
+// This helper clamps to the last valid day instead.
+function addMonthsSafe(isoDate: string, months: number): string {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const totalMonths = (m - 1) + months
+  const newYear = y + Math.floor(totalMonths / 12)
+  const newMonth = totalMonths % 12
+  const lastDay = new Date(Date.UTC(newYear, newMonth + 1, 0)).getUTCDate()
+  const newDay = Math.min(d, lastDay)
+  return `${newYear}-${String(newMonth + 1).padStart(2, '0')}-${String(newDay).padStart(2, '0')}`
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
@@ -30,8 +42,14 @@ export async function POST(req: NextRequest) {
     if (!emailRe.test(giverEmail) || !emailRe.test(recipientEmail)) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
-    if (![1, 3, 6].includes(durationMonths)) {
-      return NextResponse.json({ error: "durationMonths must be 1, 3, or 6" }, { status: 400 });
+    if (!occasion?.trim()) {
+      return NextResponse.json({ error: "Missing required field: occasion" }, { status: 400 });
+    }
+    if (!Array.isArray(interests) || interests.length === 0) {
+      return NextResponse.json({ error: "At least one interest is required" }, { status: 400 });
+    }
+    if (![1, 3, 6, 12].includes(durationMonths)) {
+      return NextResponse.json({ error: "durationMonths must be 1, 3, 6, or 12" }, { status: 400 });
     }
     if (!startDate || startDate < todayStr) {
       return NextResponse.json({ error: "startDate must be today or in the future" }, { status: 400 });
@@ -75,6 +93,7 @@ export async function POST(req: NextRequest) {
 
     if (orderError || !orderData) {
       console.error("[create-order] Failed to insert order:", orderError);
+      await supabaseAdmin.from("recipients").delete().eq("id", recipientId);
       return NextResponse.json({ error: orderError?.message ?? "Failed to insert order" }, { status: 500 });
     }
 
@@ -88,23 +107,19 @@ export async function POST(req: NextRequest) {
 
     if (vouchersError || !vouchers || vouchers.length === 0) {
       console.error("[create-order] Failed to load vouchers:", vouchersError);
+      await supabaseAdmin.from("orders").delete().eq("id", orderId);
+      await supabaseAdmin.from("recipients").delete().eq("id", recipientId);
       return NextResponse.json({ error: vouchersError?.message ?? "No active vouchers found" }, { status: 500 });
     }
 
     // 4. Create scheduled_mails — one per month
-    const start = new Date(startDate);
-    const scheduledMails = Array.from({ length: durationMonths }, (_, monthIndex) => {
-      const sendDate = new Date(start);
-      sendDate.setMonth(sendDate.getMonth() + monthIndex);
-
-      return {
-        order_id: orderId,
-        recipient_id: recipientId,
-        voucher_id: vouchers[monthIndex % vouchers.length].id,
-        send_date: sendDate.toISOString().split("T")[0],
-        status: "draft",
-      };
-    });
+    const scheduledMails = Array.from({ length: durationMonths }, (_, monthIndex) => ({
+      order_id: orderId,
+      recipient_id: recipientId,
+      voucher_id: vouchers[monthIndex % vouchers.length].id,
+      send_date: addMonthsSafe(startDate, monthIndex),
+      status: "draft",
+    }));
 
     const { error: mailsError } = await supabaseAdmin
       .from("scheduled_mails")
@@ -112,31 +127,30 @@ export async function POST(req: NextRequest) {
 
     if (mailsError) {
       console.error("[create-order] Failed to insert scheduled_mails:", mailsError);
+      await supabaseAdmin.from("orders").delete().eq("id", orderId);
+      await supabaseAdmin.from("recipients").delete().eq("id", recipientId);
       return NextResponse.json({ error: mailsError.message }, { status: 500 });
     }
 
     // 5. Send confirmation email
-    const [day, month, year] = [
-      start.getDate().toString().padStart(2, "0"),
-      (start.getMonth() + 1).toString().padStart(2, "0"),
-      start.getFullYear(),
-    ];
-    const formattedStartDate = `${day}.${month}.${year}`;
+    const [startYear, startMonth, startDay] = startDate.split("-");
+    const formattedStartDate = `${startDay}.${startMonth}.${startYear}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lekker-letter.de";
 
     const { error: resendError } = await resend.emails.send({
       from: "Lekker Letter <noreply@lekker-letter.de>",
-      to: "henningdeliusfritz@gmail.com",
+      to: giverEmail,
       subject: `Lekker Letter für ${recipientName} ist eingerichtet 🎁`,
       html: `
         <p>${durationMonths} Monate für ${recipientName} eingerichtet.</p>
         <p>Erste Mail: ${formattedStartDate}</p>
-        <p>Empfänger-Seite: <a href="https://lekker-letter.de/gift/${orderId}">https://lekker-letter.de/gift/${orderId}</a></p>
+        <p>Empfänger-Seite: <a href="${baseUrl}/gift/${orderId}">${baseUrl}/gift/${orderId}</a></p>
       `,
     });
 
     if (resendError) {
+      // Non-fatal: order was already created. Log and continue.
       console.error("[create-order] Failed to send confirmation email:", resendError);
-      return NextResponse.json({ error: resendError.message }, { status: 500 });
     }
 
     // 6. Return orderId

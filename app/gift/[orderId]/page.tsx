@@ -57,6 +57,7 @@ export default async function GiftPage({ params }: PageProps) {
     .select(`
       id,
       send_date,
+      status,
       vouchers (title, partner_name, city)
     `)
     .eq('order_id', orderId)
@@ -140,8 +141,7 @@ export default async function GiftPage({ params }: PageProps) {
               Überraschungen konnten nicht geladen werden
             </p>
           ) : (mails ?? []).map((mail, index) => {
-            const sendDate = new Date(mail.send_date + 'T00:00:00')
-            const isOpen = sendDate <= today
+            const isOpen = mail.status === 'sent'
             const days = daysUntil(mail.send_date, today)
             const voucher = mail.vouchers as unknown as {
               title: string | null
@@ -239,7 +239,7 @@ export default async function GiftPage({ params }: PageProps) {
                       fontSize: '0.85rem',
                       fontFamily: 'system-ui, sans-serif',
                     }}>
-                      In {days} Tagen
+                      {days <= 0 ? 'In Kürze' : `In ${days} ${days === 1 ? 'Tag' : 'Tagen'}`}
                     </span>
                   </div>
                 )}
