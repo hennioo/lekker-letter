@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import OrdersTable from './OrdersTable'
 
 export default async function OrdersPage() {
   const { data: orders, error } = await supabaseAdmin
@@ -45,34 +46,7 @@ export default async function OrdersPage() {
       {!orders?.length ? (
         <p style={{ color: '#666' }}>No orders yet.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-              <th style={{ padding: '0.5rem' }}>Giver</th>
-              <th style={{ padding: '0.5rem' }}>Recipient</th>
-              <th style={{ padding: '0.5rem' }}>Occasion</th>
-              <th style={{ padding: '0.5rem' }}>Start Date</th>
-              <th style={{ padding: '0.5rem' }}>Status</th>
-              <th style={{ padding: '0.5rem' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '0.5rem' }}>{order.giver_name}</td>
-                <td style={{ padding: '0.5rem' }}>{(order.recipients as { name: string } | null)?.name ?? '—'}</td>
-                <td style={{ padding: '0.5rem' }}>{order.occasion}</td>
-                <td style={{ padding: '0.5rem' }}>{order.start_date}</td>
-                <td style={{ padding: '0.5rem' }}>{order.status}</td>
-                <td style={{ padding: '0.5rem' }}>
-                  <a href={`/admin/orders/${order.id}`} style={{ color: '#111', fontSize: '0.85rem' }}>
-                    View →
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <OrdersTable orders={orders.map((o) => ({ ...o, recipients: (o.recipients as unknown as { name: string } | null) }))} />
       )}
     </main>
   )
