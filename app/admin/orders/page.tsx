@@ -20,7 +20,7 @@ export default async function OrdersPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <a href="/admin" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
             ← Admin

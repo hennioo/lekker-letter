@@ -55,6 +55,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
     tone: string | null
   } | null
 
+  const dd: React.CSSProperties = { margin: 0, wordBreak: 'break-word', overflowWrap: 'anywhere' }
+
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
       <a href="/admin/orders" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
@@ -69,15 +71,15 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </h2>
         <dl style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '0.4rem 0', fontSize: '0.9rem' }}>
           <dt style={{ color: '#666' }}>Giver</dt>
-          <dd style={{ margin: 0 }}>{order.giver_name} ({order.giver_email})</dd>
+          <dd style={dd}>{order.giver_name} ({order.giver_email})</dd>
           <dt style={{ color: '#666' }}>Occasion</dt>
-          <dd style={{ margin: 0 }}>{order.occasion ?? '—'}</dd>
+          <dd style={dd}>{order.occasion ?? '—'}</dd>
           <dt style={{ color: '#666' }}>Duration</dt>
-          <dd style={{ margin: 0 }}>{order.duration_months} months</dd>
+          <dd style={dd}>{order.duration_months} months</dd>
           <dt style={{ color: '#666' }}>Start Date</dt>
-          <dd style={{ margin: 0 }}>{order.start_date ?? '—'}</dd>
+          <dd style={dd}>{order.start_date ?? '—'}</dd>
           <dt style={{ color: '#666' }}>Status</dt>
-          <dd style={{ margin: 0 }}>{order.status}</dd>
+          <dd style={dd}>{order.status}</dd>
         </dl>
       </section>
 
@@ -88,17 +90,17 @@ export default async function OrderDetailPage({ params }: PageProps) {
           </h2>
           <dl style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '0.4rem 0', fontSize: '0.9rem' }}>
             <dt style={{ color: '#666' }}>Name</dt>
-            <dd style={{ margin: 0 }}>{recipient.name}</dd>
+            <dd style={dd}>{recipient.name}</dd>
             <dt style={{ color: '#666' }}>Email</dt>
-            <dd style={{ margin: 0 }}>{recipient.email}</dd>
+            <dd style={dd}>{recipient.email}</dd>
             <dt style={{ color: '#666' }}>City</dt>
-            <dd style={{ margin: 0 }}>{recipient.city ?? '—'}</dd>
+            <dd style={dd}>{recipient.city ?? '—'}</dd>
             <dt style={{ color: '#666' }}>Interests</dt>
-            <dd style={{ margin: 0 }}>{recipient.interests ?? '—'}</dd>
+            <dd style={dd}>{recipient.interests ?? '—'}</dd>
             <dt style={{ color: '#666' }}>Relationship</dt>
-            <dd style={{ margin: 0 }}>{recipient.relationship_to_giver ?? '—'}</dd>
+            <dd style={dd}>{recipient.relationship_to_giver ?? '—'}</dd>
             <dt style={{ color: '#666' }}>Tone</dt>
-            <dd style={{ margin: 0 }}>{recipient.tone ?? '—'}</dd>
+            <dd style={dd}>{recipient.tone ?? '—'}</dd>
           </dl>
         </section>
       )}
