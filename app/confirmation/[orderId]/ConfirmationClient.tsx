@@ -155,7 +155,7 @@ export default function ConfirmationClient({ orderId, recipientName, giverName, 
             color: "#a09880",
             marginBottom: "1rem",
           }}>
-            Geplante Mails
+            So geht's weiter
           </p>
 
           {loadingMails ? (

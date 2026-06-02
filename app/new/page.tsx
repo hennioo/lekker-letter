@@ -77,7 +77,9 @@ const s = {
     marginBottom: "0.6rem",
   } as React.CSSProperties,
   input: (invalid: boolean): React.CSSProperties => ({
+    display: "block",
     width: "100%",
+    maxWidth: "100%",
     backgroundColor: "#141414",
     color: "#f5f0e8",
     border: `1px solid ${invalid ? "#8b2020" : "#2a2a2a"}`,
