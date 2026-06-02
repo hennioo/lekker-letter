@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 export default function AdminPage() {
   return (
     <main style={{ maxWidth: 600, margin: '2rem auto', padding: '0 1rem' }}>

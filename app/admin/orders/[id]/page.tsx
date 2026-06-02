@@ -2,6 +2,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import ScheduledMailList from './ScheduledMailList'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: { id: string }
 }
@@ -25,7 +27,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
   if (error || !order) notFound()
 
-  const { data: mails } = await supabaseAdmin
+  const { data: mails, error: mailsError } = await supabaseAdmin
     .from('scheduled_mails')
     .select(`
       id,
@@ -38,6 +40,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
     `)
     .eq('order_id', params.id)
     .order('send_date', { ascending: true })
+
+  if (mailsError) {
+    console.error('[admin/orders/[id]] Failed to load scheduled mails:', mailsError.message)
+  }
 
   const recipient = order.recipients as unknown as {
     name: string
@@ -100,7 +106,13 @@ export default async function OrderDetailPage({ params }: PageProps) {
         <h2 style={{ margin: '0 0 1rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>
           Scheduled Mails
         </h2>
-        <ScheduledMailList mails={(mails ?? []) as unknown as Parameters<typeof ScheduledMailList>[0]['mails']} />
+        {mailsError ? (
+          <p style={{ color: 'red', fontSize: '0.9rem' }}>
+            Error loading scheduled mails: {mailsError.message}
+          </p>
+        ) : (
+          <ScheduledMailList mails={(mails ?? []) as unknown as Parameters<typeof ScheduledMailList>[0]['mails']} />
+        )}
       </section>
     </main>
   )

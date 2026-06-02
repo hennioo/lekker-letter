@@ -5,7 +5,13 @@ import LekkerLetterEmail from "@/emails/LekkerLetterEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(req: NextRequest) {
+function formatDateDE(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}.${m}.${y}`
+}
+
+// Vercel Cron Jobs send GET; the manual trigger proxy sends POST — both are handled here.
+async function handler(req: NextRequest): Promise<NextResponse> {
   if (req.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -30,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   let sent = 0;
   let failed = 0;
-  const skipped = 0;
+  let skipped = 0;
 
   for (const mail of dueMails ?? []) {
     const recipient = mail.recipients as unknown as { name: string; email: string } | null;
@@ -66,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const { error: resendError } = await resend.emails.send({
-        from: "Lekker Letter <onboarding@resend.dev>",
+        from: "Lekker Letter <noreply@lekker-letter.de>",
         to: recipient.email,
         subject: emailSubject,
         react: LekkerLetterEmail({
@@ -79,7 +85,7 @@ export async function POST(req: NextRequest) {
           voucherPartner: `${voucher.partner_name}, ${voucher.city}`,
           voucherAddress: voucher.address,
           voucherCode: voucher.voucher_code,
-          voucherValidUntil: voucher.valid_until,
+          voucherValidUntil: formatDateDE(voucher.valid_until),
         }),
       });
 
@@ -87,13 +93,18 @@ export async function POST(req: NextRequest) {
         throw new Error(resendError.message);
       }
 
-      await supabaseAdmin
+      const { error: updateError } = await supabaseAdmin
         .from("scheduled_mails")
         .update({ status: "sent", sent_at: new Date().toISOString() })
         .eq("id", mail.id);
 
-      console.log(`[send-due-mails] Sent mail ${mail.id} to ${recipient.email}`);
-      sent++;
+      if (updateError) {
+        console.error(`[send-due-mails] Mail ${mail.id} sent but status update failed:`, updateError.message);
+        failed++;
+      } else {
+        console.log(`[send-due-mails] Sent mail ${mail.id} to ${recipient.email}`);
+        sent++;
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[send-due-mails] Failed to send mail ${mail.id}:`, message);
@@ -107,3 +118,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ sent, failed, skipped });
 }
+
+export const GET = handler;
+export const POST = handler;

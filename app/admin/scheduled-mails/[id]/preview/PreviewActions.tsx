@@ -4,9 +4,16 @@ import { useState } from 'react'
 
 type State = 'idle' | 'loading' | 'done' | 'error'
 
-export default function PreviewActions({ scheduledMailId }: { scheduledMailId: string }) {
+export default function PreviewActions({
+  scheduledMailId,
+  initialStatus,
+}: {
+  scheduledMailId: string
+  initialStatus: string
+}) {
   const [approveState, setApproveState] = useState<State>('idle')
   const [sendState, setSendState] = useState<State>('idle')
+  const [currentStatus, setCurrentStatus] = useState(initialStatus)
 
   async function handleApprove() {
     setApproveState('loading')
@@ -18,6 +25,7 @@ export default function PreviewActions({ scheduledMailId }: { scheduledMailId: s
       })
       if (!res.ok) throw new Error('Failed')
       setApproveState('done')
+      setCurrentStatus('approved')
     } catch {
       setApproveState('error')
     }
@@ -43,8 +51,23 @@ export default function PreviewActions({ scheduledMailId }: { scheduledMailId: s
     }
   }
 
+  const statusColor: Record<string, string> = {
+    draft: '#888',
+    approved: '#2d7a3f',
+    sent: '#1a5c8a',
+    failed: '#c0392b',
+    cancelled: '#888',
+  }
+
   return (
-    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div style={{ fontSize: '0.85rem' }}>
+        Status:{' '}
+        <span style={{ color: statusColor[currentStatus] ?? '#888', fontWeight: 600 }}>
+          {currentStatus}
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
       <button
         onClick={handleApprove}
         disabled={approveState === 'loading' || approveState === 'done'}
@@ -75,6 +98,7 @@ export default function PreviewActions({ scheduledMailId }: { scheduledMailId: s
       >
         {sendState === 'loading' ? 'Sending…' : sendState === 'done' ? 'Sent ✓' : sendState === 'error' ? 'Error — Retry' : 'Send Test Mail'}
       </button>
+      </div>
     </div>
   )
 }

@@ -4,6 +4,13 @@ import { supabaseAdmin } from '@/lib/supabase'
 import LekkerLetterEmail from '@/emails/LekkerLetterEmail'
 import PreviewActions from './PreviewActions'
 
+function formatDateDE(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}.${m}.${y}`
+}
+
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: { id: string }
 }
@@ -54,7 +61,7 @@ export default async function PreviewPage({ params }: PageProps) {
       voucherPartner: voucher ? `${voucher.partner_name}, ${voucher.city}` : undefined,
       voucherAddress: voucher?.address,
       voucherCode: voucher?.voucher_code,
-      voucherValidUntil: voucher?.valid_until,
+      voucherValidUntil: voucher?.valid_until ? formatDateDE(voucher.valid_until) : undefined,
     })
   )
 
@@ -74,8 +81,6 @@ export default async function PreviewPage({ params }: PageProps) {
           </dd>
           <dt style={{ color: '#666' }}>Send Date</dt>
           <dd style={{ margin: 0 }}>{mail.send_date}</dd>
-          <dt style={{ color: '#666' }}>Status</dt>
-          <dd style={{ margin: 0 }}>{mail.status}</dd>
           <dt style={{ color: '#666' }}>Voucher</dt>
           <dd style={{ margin: 0 }}>{voucher?.title ?? '—'}</dd>
           <dt style={{ color: '#666' }}>Subject</dt>
@@ -83,7 +88,7 @@ export default async function PreviewPage({ params }: PageProps) {
         </dl>
       </section>
 
-      <PreviewActions scheduledMailId={params.id} />
+      <PreviewActions scheduledMailId={params.id} initialStatus={mail.status} />
 
       <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999' }}>
         Email Preview

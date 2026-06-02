@@ -2,6 +2,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import OrdersTable from './OrdersTable'
 import SendDueMailsButton from './SendDueMailsButton'
 
+export const dynamic = 'force-dynamic'
+
 export default async function OrdersPage() {
   const { data: orders, error } = await supabaseAdmin
     .from('orders')

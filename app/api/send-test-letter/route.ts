@@ -5,6 +5,11 @@ import LekkerLetterEmail from "@/emails/LekkerLetterEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function formatDateDE(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}.${m}.${y}`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({})) as { scheduledMailId?: string };
@@ -65,7 +70,7 @@ export async function POST(req: NextRequest) {
       console.log('[send-test-letter] Sending mail — to:', toAddress, '| subject:', emailSubject);
 
       const { data: resendData, error: resendError } = await resend.emails.send({
-        from: "Lekker Letter <onboarding@resend.dev>",
+        from: "Lekker Letter <noreply@lekker-letter.de>",
         to: toAddress,
         subject: emailSubject,
         react: LekkerLetterEmail({
@@ -78,7 +83,7 @@ export async function POST(req: NextRequest) {
           voucherPartner: `${voucher.partner_name}, ${voucher.city}`,
           voucherAddress: voucher.address,
           voucherCode: voucher.voucher_code,
-          voucherValidUntil: voucher.valid_until,
+          voucherValidUntil: formatDateDE(voucher.valid_until),
         }),
       });
 
@@ -95,7 +100,7 @@ export async function POST(req: NextRequest) {
     // Fallback: hardcoded test (no scheduledMailId in body)
     console.log('[send-test-letter] Path: fallback (no scheduledMailId) — sending generic test mail');
     const { data: resendData, error: resendError } = await resend.emails.send({
-      from: "Lekker Letter <onboarding@resend.dev>",
+      from: "Lekker Letter <noreply@lekker-letter.de>",
       to: "henningdeliusfritz@gmail.com",
       subject: "🎁 Dein erstes Lekker Letter",
       react: LekkerLetterEmail({}),

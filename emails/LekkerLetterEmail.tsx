@@ -32,7 +32,7 @@ export default function LekkerLetterEmail({
   voucherPartner = "Bar Schmitz, Köln",
   voucherAddress = "Aachener Str. 28, 50674 Köln",
   voucherCode = "LEKKER-TEST-001",
-  voucherValidUntil = "31.12.2025",
+  voucherValidUntil = "31.12.2026",
 }: LekkerLetterEmailProps) {
   return (
     <Html>
