@@ -16,19 +16,30 @@ interface ScheduledMail {
   } | null
 }
 
+function parseSubjectFromText(generated_text: string | null): string | null {
+  if (!generated_text) return null
+  try {
+    const parsed = JSON.parse(generated_text) as { subject?: string }
+    return parsed.subject ?? null
+  } catch {
+    return null
+  }
+}
+
 export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] }) {
   const router = useRouter()
   const [subjects, setSubjects] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {}
     for (const m of mails) {
-      if (m.generated_subject) init[m.id] = m.generated_subject
+      const subject = m.generated_subject ?? parseSubjectFromText(m.generated_text)
+      if (subject) init[m.id] = subject
     }
     return init
   })
   const [hasText, setHasText] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {}
     for (const m of mails) {
-      if (m.generated_text) init[m.id] = true
+      if (m.generated_text || m.generated_subject) init[m.id] = true
     }
     return init
   })
