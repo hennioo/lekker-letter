@@ -1,6 +1,7 @@
 'use server'
 
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 export type CreateOrderState = { error: string } | null
@@ -101,5 +102,6 @@ export async function createOrder(_prev: CreateOrderState, formData: FormData): 
     return { error: `Failed to create scheduled mails: ${mailsError.message}` }
   }
 
+  revalidatePath('/admin/orders')
   redirect('/admin/orders')
 }

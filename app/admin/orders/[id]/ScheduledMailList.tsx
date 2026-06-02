@@ -35,13 +35,21 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
   const router = useRouter()
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // Local overrides so the UI updates immediately after generation, without depending
+  // on router.refresh() re-delivering updated server props (which is unreliable for
+  // freshly-navigated routes in Next.js App Router).
+  const [generatedOverrides, setGeneratedOverrides] = useState<Record<string, { subject: string }>>({})
+
+  function hasText(mail: ScheduledMail): boolean {
+    return !!(generatedOverrides[mail.id] || mailHasText(mail))
+  }
 
   async function handleGenerate(mail: ScheduledMail) {
     if (!mail.vouchers) {
       setErrors((e) => ({ ...e, [mail.id]: 'No voucher linked to this mail' }))
       return
     }
-    if (mailHasText(mail)) {
+    if (hasText(mail)) {
       const confirmed = window.confirm('Bereits generierter Text vorhanden. Wirklich überschreiben?')
       if (!confirmed) return
     }
@@ -59,6 +67,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
       })
       const data = await res.json() as { success?: boolean; subject?: string; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
+      setGeneratedOverrides((g) => ({ ...g, [mail.id]: { subject: data.subject ?? '' } }))
       router.refresh()
     } catch (err) {
       setErrors((e) => ({ ...e, [mail.id]: (err as Error).message }))
@@ -89,7 +98,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
             <td style={{ padding: '0.5rem' }}>{mail.status}</td>
             <td style={{ padding: '0.5rem' }}>{mail.vouchers?.title ?? '—'}</td>
             <td style={{ padding: '0.5rem', color: '#a09880' }}>
-              {getSubject(mail) ?? 'Not generated'}
+              {generatedOverrides[mail.id]?.subject ?? getSubject(mail) ?? 'Not generated'}
               {errors[mail.id] && (
                 <span style={{ color: 'red', marginLeft: '0.5rem', fontSize: '0.8rem' }}>
                   {errors[mail.id]}
@@ -114,7 +123,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
                 >
                   {loading[mail.id] ? 'Generating…' : 'Generate Text'}
                 </button>
-                {mailHasText(mail) && (
+                {hasText(mail) && (
                   <a
                     href={`/admin/scheduled-mails/${mail.id}/preview`}
                     style={{

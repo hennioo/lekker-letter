@@ -14,7 +14,8 @@
       "Bash(git push *)",
       "Bash(grep -E '\\\\.\\(ts|tsx|js|jsx\\)$')",
       "Bash(npm run *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(xargs grep *)"
     ]
   }
 }
