@@ -66,6 +66,7 @@ const s = {
     marginBottom: "2.25rem",
     border: "none",
     padding: 0,
+    overflow: "hidden",
   } as React.CSSProperties,
   label: {
     display: "block",
@@ -80,6 +81,7 @@ const s = {
     display: "block",
     width: "100%",
     maxWidth: "100%",
+    minWidth: 0,
     backgroundColor: "#141414",
     color: "#f5f0e8",
     border: `1px solid ${invalid ? "#8b2020" : "#2a2a2a"}`,
