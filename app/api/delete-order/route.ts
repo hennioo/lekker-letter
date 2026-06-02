@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       }
     }
 
+    revalidatePath('/admin/orders')
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[delete-order] Unexpected error:', err)
