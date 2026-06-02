@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import ConfirmationClient from "./ConfirmationClient";
 
 interface PageProps {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import LekkerLetterEmail from "@/emails/LekkerLetterEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

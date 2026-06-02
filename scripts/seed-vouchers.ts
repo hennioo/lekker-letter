@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../lib/supabase'
+import { supabaseAdmin } from '../lib/supabase-admin'
 
 const voucher = {
   title: 'Zwei Drinks nach Wahl',

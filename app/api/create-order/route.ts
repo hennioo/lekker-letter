@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 // setUTCMonth overflows when the day doesn't exist in the target month (e.g. Jan 31 + 1 month → Mar 2/3).
 // This helper clamps to the last valid day instead.

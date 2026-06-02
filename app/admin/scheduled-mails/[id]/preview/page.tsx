@@ -1,6 +1,6 @@
 import { render } from '@react-email/components'
 import { notFound } from 'next/navigation'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import LekkerLetterEmail from '@/emails/LekkerLetterEmail'
 import PreviewActions from './PreviewActions'
 

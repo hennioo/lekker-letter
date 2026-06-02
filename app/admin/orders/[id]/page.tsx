@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { notFound } from 'next/navigation'
 import ScheduledMailList from './ScheduledMailList'
 import DeleteOrderButton from './DeleteOrderButton'
