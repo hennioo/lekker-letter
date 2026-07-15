@@ -2,12 +2,16 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { LL_COLORS, StarDoodle } from "../_components/doodles";
+import DatePicker from "../_components/DatePicker";
+
+const { orange: ORANGE, burgundy: BURGUNDY, yellow: YELLOW, paper: PAPER } = LL_COLORS;
 
 const OCCASIONS = [
-  { value: "Geburtstag", label: "🎂 Geburtstag" },
-  { value: "Freundschaft", label: "🤝 Freundschaft" },
-  { value: "Danke", label: "🙏 Danke" },
-  { value: "Einfach so", label: "✨ Einfach so" },
+  { value: "Geburtstag", label: "Geburtstag" },
+  { value: "Freundschaft", label: "Freundschaft" },
+  { value: "Danke", label: "Danke" },
+  { value: "Einfach so", label: "Einfach so" },
 ];
 
 const INTEREST_OPTIONS = [
@@ -25,151 +29,6 @@ const DURATIONS = [
   { value: 6, label: "6 Monate" },
 ];
 
-const s = {
-  page: {
-    backgroundColor: "#0f0f0f",
-    minHeight: "100vh",
-    color: "#f5f0e8",
-  } as React.CSSProperties,
-  inner: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "0 2rem 6rem",
-  } as React.CSSProperties,
-  nav: {
-    padding: "2rem 0 0",
-    marginBottom: "3.5rem",
-  } as React.CSSProperties,
-  navLink: {
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.75rem",
-    letterSpacing: "0.2em",
-    color: "#f5f0e8",
-    textDecoration: "none",
-  } as React.CSSProperties,
-  heading: {
-    fontFamily: "Georgia, 'Times New Roman', serif",
-    fontSize: "clamp(1.6rem, 5vw, 2.25rem)",
-    fontWeight: 400,
-    lineHeight: 1.25,
-    color: "#f5f0e8",
-    marginBottom: "0.75rem",
-  } as React.CSSProperties,
-  subline: {
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.95rem",
-    color: "#a09880",
-    lineHeight: 1.6,
-    marginBottom: "3rem",
-  } as React.CSSProperties,
-  fieldset: {
-    marginBottom: "2.25rem",
-    border: "none",
-    padding: 0,
-    overflow: "hidden",
-  } as React.CSSProperties,
-  label: {
-    display: "block",
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.75rem",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase" as const,
-    color: "#a09880",
-    marginBottom: "0.6rem",
-  } as React.CSSProperties,
-  input: (invalid: boolean): React.CSSProperties => ({
-    display: "block",
-    width: "100%",
-    maxWidth: "100%",
-    minWidth: 0,
-    backgroundColor: "#141414",
-    color: "#f5f0e8",
-    border: `1px solid ${invalid ? "#8b2020" : "#2a2a2a"}`,
-    padding: "0.75rem 1rem",
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.95rem",
-    outline: "none",
-    borderRadius: 0,
-    boxSizing: "border-box",
-  }),
-  cardGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "0.6rem",
-  } as React.CSSProperties,
-  card: (selected: boolean, invalid: boolean): React.CSSProperties => ({
-    padding: "0.85rem 1rem",
-    minHeight: "44px",
-    backgroundColor: selected ? "rgba(200,169,110,0.08)" : "#141414",
-    border: `1px solid ${invalid ? "#8b2020" : selected ? "#c8a96e" : "#2a2a2a"}`,
-    color: selected ? "#c8a96e" : "#f5f0e8",
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.9rem",
-    cursor: "pointer",
-    textAlign: "left",
-    borderRadius: 0,
-    transition: "border-color 0.15s, color 0.15s, background-color 0.15s",
-  }),
-  chipRow: {
-    display: "flex",
-    flexWrap: "wrap" as const,
-    gap: "0.5rem",
-  } as React.CSSProperties,
-  chip: (selected: boolean, invalid: boolean): React.CSSProperties => ({
-    padding: "0.5rem 1rem",
-    minHeight: "44px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: selected ? "rgba(200,169,110,0.08)" : "#141414",
-    border: `1px solid ${invalid ? "#8b2020" : selected ? "#c8a96e" : "#2a2a2a"}`,
-    color: selected ? "#c8a96e" : "#f5f0e8",
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.85rem",
-    cursor: "pointer",
-    borderRadius: 0,
-    transition: "border-color 0.15s, color 0.15s, background-color 0.15s",
-  }),
-  durationGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "0.6rem",
-  } as React.CSSProperties,
-  durationCard: (selected: boolean, invalid: boolean): React.CSSProperties => ({
-    padding: "1.25rem 1rem",
-    backgroundColor: selected ? "rgba(200,169,110,0.08)" : "#141414",
-    border: `1px solid ${invalid ? "#8b2020" : selected ? "#c8a96e" : "#2a2a2a"}`,
-    color: selected ? "#c8a96e" : "#f5f0e8",
-    fontFamily: "Georgia, 'Times New Roman', serif",
-    fontSize: "1.05rem",
-    cursor: "pointer",
-    textAlign: "center" as const,
-    borderRadius: 0,
-    transition: "border-color 0.15s, color 0.15s, background-color 0.15s",
-  }),
-  submitButton: (loading: boolean): React.CSSProperties => ({
-    backgroundColor: "#c8a96e",
-    color: "#0f0f0f",
-    border: "none",
-    padding: "0.85rem 2rem",
-    width: "100%",
-    minHeight: "44px",
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.9rem",
-    letterSpacing: "0.04em",
-    cursor: loading ? "default" : "pointer",
-    borderRadius: 0,
-    opacity: loading ? 0.75 : 1,
-    transition: "opacity 0.15s",
-  }),
-  errorText: {
-    fontFamily: "system-ui, sans-serif",
-    fontSize: "0.8rem",
-    color: "#c0392b",
-    marginTop: "1rem",
-  } as React.CSSProperties,
-};
-
 type Fields = {
   giverName: boolean;
   giverEmail: boolean;
@@ -181,9 +40,23 @@ type Fields = {
   startDate: boolean;
 };
 
+function pad(n: number) {
+  return n.toString().padStart(2, "0");
+}
+function localIso(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function tomorrowIso() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return localIso(d);
+}
+function todayIso() {
+  return localIso(new Date());
+}
+
 export default function NewOrderPage() {
   const router = useRouter();
-  const today = new Date().toISOString().split("T")[0];
 
   const [giverName, setGiverName] = useState("");
   const [giverEmail, setGiverEmail] = useState("");
@@ -192,7 +65,7 @@ export default function NewOrderPage() {
   const [occasion, setOccasion] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
   const [durationMonths, setDurationMonths] = useState<number | null>(null);
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState(() => tomorrowIso());
 
   const submitting = useRef(false);
   const [loading, setLoading] = useState(false);
@@ -210,15 +83,13 @@ export default function NewOrderPage() {
 
   function toggleInterest(interest: string) {
     setInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : [...prev, interest]
+      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
     );
   }
 
   function validate(): boolean {
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const todayStr = new Date().toISOString().split("T")[0];
+    const today = todayIso();
     const next: Fields = {
       giverName: !giverName.trim(),
       giverEmail: !emailRe.test(giverEmail.trim()),
@@ -227,7 +98,7 @@ export default function NewOrderPage() {
       occasion: !occasion,
       interests: interests.length === 0,
       durationMonths: durationMonths === null,
-      startDate: !startDate || startDate < todayStr,
+      startDate: !startDate || startDate < today,
     };
     setInvalid(next);
     return !Object.values(next).some(Boolean);
@@ -285,142 +156,225 @@ export default function NewOrderPage() {
   }
 
   return (
-    <div style={s.page}>
-      <div style={s.inner}>
-
-        {/* Nav */}
-        <nav style={s.nav}>
-          <a href="/" style={s.navLink}>LEKKER LETTER</a>
+    <main style={{ background: PAPER, minHeight: "100vh" }}>
+      {/* Hero-lite */}
+      <section
+        style={{
+          background: ORANGE,
+          padding:
+            "clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem) clamp(2.5rem, 6vw, 4rem)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontSize: "0.8rem",
+            letterSpacing: "0.25em",
+            color: YELLOW,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
+          }}
+        >
+          <a href="/">← Lekker Letter</a>
+          <span>Neuer Brief</span>
         </nav>
 
-        {/* Header */}
-        <h1 style={s.heading}>Wem schenkst du Lekker Letter?</h1>
-        <p style={s.subline}>
-          Erzähl uns von der Person — wir kümmern uns um den Rest.
-        </p>
+        <div
+          style={{
+            maxWidth: 640,
+            margin: "clamp(2rem, 5vw, 3.5rem) auto 0",
+            textAlign: "center",
+            position: "relative",
+          }}
+        >
+          <div
+            className="ll-sway"
+            style={{
+              position: "absolute",
+              top: "-1rem",
+              left: "-1rem",
+              // @ts-expect-error CSS custom property
+              "--ll-rot": "-10deg",
+              transform: "rotate(-10deg)",
+            }}
+          >
+            <StarDoodle size={54} color={YELLOW} />
+          </div>
+          <div
+            className="ll-sway--reverse"
+            style={{
+              position: "absolute",
+              top: "-1rem",
+              right: "-1rem",
+              // @ts-expect-error CSS custom property
+              "--ll-rot": "12deg",
+              transform: "rotate(12deg)",
+            }}
+          >
+            <StarDoodle size={42} color={BURGUNDY} />
+          </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+          <h1 className="ll-h1" style={{ margin: 0 }}>
+            Wem schenkst du
+            <br />
+            Lekker Letter?
+          </h1>
+          <p
+            style={{
+              fontFamily: "var(--font-sans), system-ui, sans-serif",
+              fontSize: "1rem",
+              color: BURGUNDY,
+              lineHeight: 1.6,
+              margin: "1.25rem auto 0",
+              maxWidth: 460,
+            }}
+          >
+            Erzähl uns von der Person — wir kümmern uns um den Rest.
+          </p>
+        </div>
+      </section>
 
-          {/* 1. Giver name */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Dein Name</label>
+      {/* Form */}
+      <section style={{ padding: "clamp(2.5rem, 5vw, 4rem) 1.5rem 5rem" }}>
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          style={{ maxWidth: 620, margin: "0 auto" }}
+        >
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Dein Name</label>
             <input
               type="text"
-              placeholder="Henning"
               value={giverName}
               onChange={(e) => setGiverName(e.target.value)}
-              style={s.input(invalid.giverName)}
+              className={`ll-input${invalid.giverName ? " ll-input--invalid" : ""}`}
             />
           </fieldset>
 
-          {/* 2. Giver email */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Deine E-Mail-Adresse</label>
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Deine E-Mail-Adresse</label>
             <input
               type="email"
-              placeholder="henning@example.com"
               value={giverEmail}
               onChange={(e) => setGiverEmail(e.target.value)}
-              style={s.input(invalid.giverEmail)}
+              className={`ll-input${invalid.giverEmail ? " ll-input--invalid" : ""}`}
             />
           </fieldset>
 
-          {/* 3. Recipient name */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Name der beschenkten Person</label>
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Name der beschenkten Person</label>
             <input
               type="text"
-              placeholder="Marina"
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
-              style={s.input(invalid.recipientName)}
+              className={`ll-input${invalid.recipientName ? " ll-input--invalid" : ""}`}
             />
           </fieldset>
 
-          {/* 3. Recipient email */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Ihre E-Mail-Adresse</label>
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Ihre E-Mail-Adresse</label>
             <input
               type="email"
-              placeholder="marina@example.com"
               value={recipientEmail}
               onChange={(e) => setRecipientEmail(e.target.value)}
-              style={s.input(invalid.recipientEmail)}
+              className={`ll-input${invalid.recipientEmail ? " ll-input--invalid" : ""}`}
             />
           </fieldset>
 
-          {/* 4. Occasion */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Was ist der Anlass?</label>
-            <div style={s.cardGrid}>
-              {OCCASIONS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setOccasion(value)}
-                  style={s.card(occasion === value, invalid.occasion)}
-                >
-                  {label}
-                </button>
-              ))}
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Was ist der Anlass?</label>
+            <div className="ll-card-grid">
+              {OCCASIONS.map(({ value, label }) => {
+                const selected = occasion === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setOccasion(value)}
+                    className={`ll-card${selected ? " ll-card--selected" : ""}${
+                      invalid.occasion ? " ll-card--invalid" : ""
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
-          {/* 5. Interests */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Was mag sie?</label>
-            <div style={s.chipRow}>
-              {INTEREST_OPTIONS.map((interest) => (
-                <button
-                  key={interest}
-                  type="button"
-                  onClick={() => toggleInterest(interest)}
-                  style={s.chip(interests.includes(interest), invalid.interests && interests.length === 0)}
-                >
-                  {interest}
-                </button>
-              ))}
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Was mag sie?</label>
+            <div className="ll-chip-row">
+              {INTEREST_OPTIONS.map((interest) => {
+                const selected = interests.includes(interest);
+                return (
+                  <button
+                    key={interest}
+                    type="button"
+                    onClick={() => toggleInterest(interest)}
+                    className={`ll-chip${selected ? " ll-chip--selected" : ""}${
+                      invalid.interests && interests.length === 0 ? " ll-chip--invalid" : ""
+                    }`}
+                  >
+                    {interest}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
-          {/* 6. Duration */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Wie viele Monate?</label>
-            <div style={s.durationGrid}>
-              {DURATIONS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setDurationMonths(value)}
-                  style={s.durationCard(durationMonths === value, invalid.durationMonths)}
-                >
-                  {label}
-                </button>
-              ))}
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Wie viele Monate?</label>
+            <div className="ll-duration-grid">
+              {DURATIONS.map(({ value, label }) => {
+                const selected = durationMonths === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setDurationMonths(value)}
+                    className={`ll-card${selected ? " ll-card--selected" : ""}${
+                      invalid.durationMonths ? " ll-card--invalid" : ""
+                    }`}
+                    style={{ textAlign: "center" }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
-          {/* 7. Start date */}
-          <fieldset style={s.fieldset}>
-            <label style={s.label}>Wann soll die erste Mail ankommen?</label>
-            <input
-              type="date"
-              min={today}
+          <fieldset className="ll-fieldset">
+            <label className="ll-label">Wann soll die erste Mail ankommen?</label>
+            <DatePicker
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              style={s.input(invalid.startDate)}
+              onChange={setStartDate}
+              min={tomorrowIso()}
+              invalid={invalid.startDate}
             />
           </fieldset>
 
-          {/* Submit */}
-          <button type="submit" disabled={loading} style={s.submitButton(loading)}>
-            {loading ? "Wird eingerichtet…" : "Geschenk einrichten →"}
-          </button>
-
-          {error && <p style={s.errorText}>{error}</p>}
-
+          <div style={{ marginTop: "2.5rem", textAlign: "center" }}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="ll-btn"
+              style={{ width: "100%", maxWidth: 360 }}
+            >
+              {loading ? "Wird eingerichtet …" : "Geschenk einrichten →"}
+            </button>
+            {error && (
+              <p className="ll-error" style={{ marginTop: "1rem" }}>
+                {error}
+              </p>
+            )}
+          </div>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
