@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import LekkerLetterEmail from '@/emails/LekkerLetterEmail'
 import PreviewActions from './PreviewActions'
+import { LL_COLORS } from '../../../../_components/doodles'
+
+const { orange: ORANGE, burgundy: BURGUNDY, yellow: YELLOW, paper: PAPER } = LL_COLORS
 
 function formatDateDE(iso: string): string {
   const [y, m, d] = iso.split('-')
@@ -66,42 +69,92 @@ export default async function PreviewPage({ params }: PageProps) {
   )
 
   return (
-    <main style={{ maxWidth: 960, margin: '2rem auto', padding: '0 1rem' }}>
-      <a href="/admin/orders" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
-        ← All Orders
-      </a>
-
-      <h1 style={{ margin: '0.5rem 0 1.5rem' }}>Email Preview</h1>
-
-      <section style={{ marginBottom: '1.5rem', padding: '1rem', border: '1px solid #eee', borderRadius: '6px', fontSize: '0.9rem' }}>
-        <dl style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '0.4rem 0', margin: 0 }}>
-          <dt style={{ color: '#666' }}>Recipient</dt>
-          <dd style={{ margin: 0 }}>
-            {recipient?.name ?? '—'}{recipient?.email ? ` (${recipient.email})` : ''}
-          </dd>
-          <dt style={{ color: '#666' }}>Send Date</dt>
-          <dd style={{ margin: 0 }}>{mail.send_date}</dd>
-          <dt style={{ color: '#666' }}>Voucher</dt>
-          <dd style={{ margin: 0 }}>{voucher?.title ?? '—'}</dd>
-          <dt style={{ color: '#666' }}>Subject</dt>
-          <dd style={{ margin: 0 }}>{generated.subject ?? '—'}</dd>
-        </dl>
+    <main style={{ background: PAPER, minHeight: '100vh' }}>
+      {/* Header strip */}
+      <section
+        style={{
+          background: BURGUNDY,
+          padding: 'clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem)',
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontFamily: 'var(--font-sans), system-ui, sans-serif',
+            fontSize: '0.8rem',
+            letterSpacing: '0.25em',
+            color: YELLOW,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+          }}
+        >
+          <a href="/admin/orders">← Alle Bestellungen</a>
+          <span>Mail-Preview</span>
+        </nav>
       </section>
 
-      <PreviewActions
-        scheduledMailId={params.id}
-        initialStatus={mail.status}
-        hasGeneratedText={!!mail.generated_text}
-      />
+      <section style={{ maxWidth: 960, margin: '0 auto', padding: 'clamp(2rem, 4vw, 3rem) 1.5rem 4rem' }}>
+        <h1 className="ll-h1" style={{ marginBottom: '2rem' }}>
+          Mail-Preview
+        </h1>
 
-      <h2 style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999' }}>
-        Email Preview
-      </h2>
-      <iframe
-        srcDoc={emailHtml}
-        style={{ width: '100%', height: '720px', border: '1px solid #e8e8e0', borderRadius: '6px', background: '#f5f5f0' }}
-        title="Email preview"
-      />
+        <div className="ll-surface" style={{ marginBottom: '1.5rem' }}>
+          <dl
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '140px 1fr',
+              gap: '0.5rem 0.75rem',
+              margin: 0,
+              fontSize: '0.9rem',
+            }}
+          >
+            <dt style={{ color: BURGUNDY, opacity: 0.55, fontSize: '0.8rem' }}>Recipient</dt>
+            <dd style={{ margin: 0, color: BURGUNDY }}>
+              {recipient?.name ?? '—'}
+              {recipient?.email ? ` (${recipient.email})` : ''}
+            </dd>
+            <dt style={{ color: BURGUNDY, opacity: 0.55, fontSize: '0.8rem' }}>Send Date</dt>
+            <dd style={{ margin: 0, color: BURGUNDY }}>{mail.send_date}</dd>
+            <dt style={{ color: BURGUNDY, opacity: 0.55, fontSize: '0.8rem' }}>Voucher</dt>
+            <dd style={{ margin: 0, color: BURGUNDY }}>{voucher?.title ?? '—'}</dd>
+            <dt style={{ color: BURGUNDY, opacity: 0.55, fontSize: '0.8rem' }}>Betreff</dt>
+            <dd style={{ margin: 0, color: BURGUNDY, fontFamily: 'var(--font-serif), serif', fontWeight: 500 }}>
+              {generated.subject ?? '—'}
+            </dd>
+          </dl>
+        </div>
+
+        <PreviewActions
+          scheduledMailId={params.id}
+          initialStatus={mail.status}
+          hasGeneratedText={!!mail.generated_text}
+        />
+
+        <h2
+          style={{
+            fontFamily: 'var(--font-sans), sans-serif',
+            fontSize: '0.72rem',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            color: ORANGE,
+            fontWeight: 600,
+            marginBottom: '0.75rem',
+          }}
+        >
+          Email Preview
+        </h2>
+        <iframe
+          srcDoc={emailHtml}
+          style={{
+            width: '100%',
+            height: '720px',
+            border: `1.5px solid rgba(120, 2, 40, 0.18)`,
+            borderRadius: '6px',
+            background: '#fff',
+          }}
+          title="Email preview"
+        />
+      </section>
     </main>
   )
 }

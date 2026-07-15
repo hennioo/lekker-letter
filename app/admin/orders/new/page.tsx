@@ -2,157 +2,178 @@
 
 import { useFormState } from 'react-dom'
 import { createOrder } from './actions'
+import { LL_COLORS } from '../../../_components/doodles'
 
-const inputStyle = {
-  width: '100%',
-  padding: '0.5rem',
-  border: '1px solid #ccc',
-  borderRadius: '4px',
-  fontSize: '1rem',
-  boxSizing: 'border-box' as const,
-}
-
-const labelStyle = {
-  display: 'flex',
-  flexDirection: 'column' as const,
-  gap: '0.25rem',
-  fontSize: '0.9rem',
-  fontWeight: 500,
-}
-
-const fieldsetStyle = {
-  border: '1px solid #ddd',
-  borderRadius: '4px',
-  padding: '1rem',
-}
+const { orange: ORANGE, burgundy: BURGUNDY, yellow: YELLOW, paper: PAPER } = LL_COLORS
 
 export default function NewOrderPage() {
   const [state, formAction] = useFormState(createOrder, null)
 
   return (
-    <main style={{ maxWidth: 600, margin: '2rem auto', padding: '0 1rem' }}>
-      <a href="/admin" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
-        ← Admin
-      </a>
-      <h1 style={{ marginTop: '0.5rem' }}>New Order</h1>
+    <main style={{ background: PAPER, minHeight: '100vh' }}>
+      {/* Header strip */}
+      <section
+        style={{
+          background: BURGUNDY,
+          padding: 'clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem)',
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontFamily: 'var(--font-sans), system-ui, sans-serif',
+            fontSize: '0.8rem',
+            letterSpacing: '0.25em',
+            color: YELLOW,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+          }}
+        >
+          <a href="/admin">← Admin</a>
+          <span>Neue Bestellung</span>
+        </nav>
+      </section>
 
-      {state?.error && (
-        <div style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fca5a5',
-          borderRadius: '4px',
-          color: '#c0392b',
-          fontSize: '0.9rem',
-          marginBottom: '1.25rem',
-        }}>
-          {state.error}
-        </div>
-      )}
+      <section style={{ maxWidth: 640, margin: '0 auto', padding: 'clamp(2rem, 4vw, 3rem) 1.5rem 4rem' }}>
+        <h1 className="ll-h1" style={{ marginBottom: '0.5rem' }}>
+          Neue Bestellung
+        </h1>
+        <p
+          style={{
+            fontFamily: 'var(--font-sans), sans-serif',
+            color: BURGUNDY,
+            opacity: 0.65,
+            marginBottom: '2rem',
+            fontSize: '0.95rem',
+          }}
+        >
+          Manuelles Anlegen (nur für Admins).
+        </p>
 
-      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <fieldset style={fieldsetStyle}>
-          <legend style={{ fontWeight: 600, padding: '0 0.5rem' }}>Giver</legend>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={labelStyle}>
-              Name
-              <input name="giver_name" type="text" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Email
-              <input name="giver_email" type="email" required style={inputStyle} />
-            </label>
+        {state?.error && (
+          <div
+            style={{
+              padding: '0.85rem 1.15rem',
+              background: 'rgba(239, 68, 22, 0.1)',
+              border: `1.5px solid ${ORANGE}`,
+              borderRadius: 6,
+              color: BURGUNDY,
+              fontFamily: 'var(--font-sans), sans-serif',
+              fontSize: '0.9rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            {state.error}
           </div>
-        </fieldset>
+        )}
 
-        <fieldset style={fieldsetStyle}>
-          <legend style={{ fontWeight: 600, padding: '0 0.5rem' }}>Recipient</legend>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={labelStyle}>
-              Name
-              <input name="recipient_name" type="text" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Email
-              <input name="recipient_email" type="email" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              City
-              <input name="city" type="text" defaultValue="Köln" style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Interests
+        <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <AdminFieldset legend="Giver">
+            <AdminField label="Name">
+              <input name="giver_name" type="text" required className="ll-input" />
+            </AdminField>
+            <AdminField label="Email">
+              <input name="giver_email" type="email" required className="ll-input" />
+            </AdminField>
+          </AdminFieldset>
+
+          <AdminFieldset legend="Recipient">
+            <AdminField label="Name">
+              <input name="recipient_name" type="text" required className="ll-input" />
+            </AdminField>
+            <AdminField label="Email">
+              <input name="recipient_email" type="email" required className="ll-input" />
+            </AdminField>
+            <AdminField label="City">
+              <input name="city" type="text" defaultValue="Köln" className="ll-input" />
+            </AdminField>
+            <AdminField label="Interests">
               <textarea
                 name="interests"
                 placeholder="Weinbar, vegetarisches Essen, gemütliche Atmosphäre"
                 rows={3}
-                style={{ ...inputStyle, resize: 'vertical' }}
+                className="ll-input"
+                style={{ resize: 'vertical' }}
               />
-            </label>
-            <label style={labelStyle}>
-              Relationship to giver
+            </AdminField>
+            <AdminField label="Relationship to giver">
               <input
                 name="relationship_to_giver"
                 type="text"
                 placeholder="beste Freundin"
-                style={inputStyle}
+                className="ll-input"
               />
-            </label>
-            <label style={labelStyle}>
-              Tone
-              <select name="tone" defaultValue="warm & persönlich" style={inputStyle}>
+            </AdminField>
+            <AdminField label="Tone">
+              <select name="tone" defaultValue="warm & persönlich" className="ll-input">
                 <option value="liebevoll & locker">liebevoll &amp; locker</option>
                 <option value="warm & persönlich">warm &amp; persönlich</option>
                 <option value="humorvoll & leicht">humorvoll &amp; leicht</option>
               </select>
-            </label>
-          </div>
-        </fieldset>
+            </AdminField>
+          </AdminFieldset>
 
-        <fieldset style={fieldsetStyle}>
-          <legend style={{ fontWeight: 600, padding: '0 0.5rem' }}>Order Details</legend>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={labelStyle}>
-              Occasion
-              <input
-                name="occasion"
-                type="text"
-                placeholder="Geburtstag"
-                required
-                style={inputStyle}
-              />
-            </label>
-            <label style={labelStyle}>
-              Start Date
-              <input name="start_date" type="date" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Duration (months)
-              <select name="duration_months" defaultValue="3" style={inputStyle}>
+          <AdminFieldset legend="Order Details">
+            <AdminField label="Occasion">
+              <input name="occasion" type="text" placeholder="Geburtstag" required className="ll-input" />
+            </AdminField>
+            <AdminField label="Start Date">
+              <input name="start_date" type="date" required className="ll-input" />
+            </AdminField>
+            <AdminField label="Duration (months)">
+              <select name="duration_months" defaultValue="3" className="ll-input">
                 <option value="1">1 month</option>
                 <option value="3">3 months</option>
                 <option value="6">6 months</option>
                 <option value="12">12 months</option>
               </select>
-            </label>
-          </div>
-        </fieldset>
+            </AdminField>
+          </AdminFieldset>
 
-        <button
-          type="submit"
-          style={{
-            padding: '0.75rem',
-            backgroundColor: '#111',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            cursor: 'pointer',
-          }}
-        >
-          Create Order
-        </button>
-      </form>
+          <button type="submit" className="ll-btn" style={{ width: '100%' }}>
+            Bestellung anlegen →
+          </button>
+        </form>
+      </section>
     </main>
+  )
+}
+
+function AdminFieldset({ legend, children }: { legend: string; children: React.ReactNode }) {
+  return (
+    <fieldset
+      style={{
+        border: `1.5px solid ${LL_COLORS.burgundy}22`,
+        borderRadius: 6,
+        padding: '1.5rem',
+        background: LL_COLORS.paper,
+      }}
+    >
+      <legend
+        style={{
+          padding: '0 0.6rem',
+          fontFamily: 'var(--font-sans), sans-serif',
+          fontWeight: 600,
+          fontSize: '0.72rem',
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          color: LL_COLORS.orange,
+        }}
+      >
+        {legend}
+      </legend>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>{children}</div>
+    </fieldset>
+  )
+}
+
+function AdminField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+      <span className="ll-label" style={{ marginBottom: 0 }}>
+        {label}
+      </span>
+      {children}
+    </label>
   )
 }

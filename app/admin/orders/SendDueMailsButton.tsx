@@ -8,17 +8,20 @@ export default function SendDueMailsButton() {
   async function handleClick() {
     setLoading(true)
     try {
-      const res = await fetch('/api/trigger-due-mails', {
-        method: 'POST',
-      })
-      const data = await res.json() as { sent?: number; failed?: number; skipped?: number; error?: string }
+      const res = await fetch('/api/trigger-due-mails', { method: 'POST' })
+      const data = (await res.json()) as {
+        sent?: number
+        failed?: number
+        skipped?: number
+        error?: string
+      }
       if (!res.ok) {
-        alert(`Error: ${data.error ?? 'Unknown error'}`)
+        alert(`Fehler: ${data.error ?? 'Unbekannt'}`)
       } else {
-        alert(`Done — Sent: ${data.sent}, Failed: ${data.failed}, Skipped: ${data.skipped}`)
+        alert(`Fertig — Versendet: ${data.sent}, Fehlgeschlagen: ${data.failed}, Übersprungen: ${data.skipped}`)
       }
     } catch (err) {
-      alert(`Network error: ${(err as Error).message}`)
+      alert(`Netzwerkfehler: ${(err as Error).message}`)
     } finally {
       setLoading(false)
     }
@@ -28,18 +31,10 @@ export default function SendDueMailsButton() {
     <button
       onClick={handleClick}
       disabled={loading}
-      style={{
-        padding: '0.5rem 1rem',
-        backgroundColor: loading ? '#ccc' : '#2d6a4f',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        fontSize: '0.9rem',
-        cursor: loading ? 'not-allowed' : 'pointer',
-        whiteSpace: 'nowrap',
-      }}
+      className="ll-btn ll-btn--sm ll-btn--orange"
+      style={{ whiteSpace: 'nowrap' }}
     >
-      {loading ? 'Sending…' : 'Send Due Mails Now'}
+      {loading ? 'Sende …' : 'Fällige Mails senden'}
     </button>
   )
 }

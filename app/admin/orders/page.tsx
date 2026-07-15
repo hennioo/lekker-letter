@@ -1,6 +1,9 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import OrdersTable from './OrdersTable'
 import SendDueMailsButton from './SendDueMailsButton'
+import { LL_COLORS } from '../../_components/doodles'
+
+const { orange: ORANGE, burgundy: BURGUNDY, yellow: YELLOW, paper: PAPER } = LL_COLORS
 
 export const dynamic = 'force-dynamic'
 
@@ -19,41 +22,101 @@ export default async function OrdersPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <main style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div>
-          <a href="/admin" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
-            ← Admin
-          </a>
-          <h1 style={{ margin: '0.25rem 0 0' }}>All Orders</h1>
+    <main style={{ background: PAPER, minHeight: '100vh' }}>
+      {/* Header strip */}
+      <section
+        style={{
+          background: BURGUNDY,
+          padding: 'clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem)',
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontFamily: 'var(--font-sans), system-ui, sans-serif',
+            fontSize: '0.8rem',
+            letterSpacing: '0.25em',
+            color: YELLOW,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+          }}
+        >
+          <a href="/admin">← Admin</a>
+          <span>Bestellungen</span>
+        </nav>
+      </section>
+
+      <section style={{ maxWidth: 1000, margin: '0 auto', padding: 'clamp(2rem, 4vw, 3rem) 1.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            marginBottom: '2rem',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div>
+            <h1 className="ll-h1" style={{ marginBottom: '0.35rem' }}>
+              Bestellungen
+            </h1>
+            <p
+              style={{
+                fontFamily: 'var(--font-sans), sans-serif',
+                color: BURGUNDY,
+                opacity: 0.6,
+                fontSize: '0.95rem',
+              }}
+            >
+              {orders?.length ?? 0}{' '}
+              {orders?.length === 1 ? 'Bestellung' : 'Bestellungen'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <SendDueMailsButton />
+            <a href="/admin/orders/new" className="ll-btn ll-btn--sm">
+              + Neue Bestellung
+            </a>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <SendDueMailsButton />
-          <a
-            href="/admin/orders/new"
+
+        {error && (
+          <p
             style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#111',
-              color: '#fff',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontSize: '0.9rem',
+              color: ORANGE,
+              fontFamily: 'var(--font-sans), sans-serif',
+              marginBottom: '1rem',
             }}
           >
-            + New Order
-          </a>
-        </div>
-      </div>
+            Fehler beim Laden: {error.message}
+          </p>
+        )}
 
-      {error && (
-        <p style={{ color: 'red' }}>Error loading orders: {error.message}</p>
-      )}
-
-      {!orders?.length ? (
-        <p style={{ color: '#666' }}>No orders yet.</p>
-      ) : (
-        <OrdersTable orders={orders.map((o) => ({ ...o, recipients: (o.recipients as unknown as { name: string } | null) }))} />
-      )}
+        {!orders?.length ? (
+          <div
+            className="ll-surface"
+            style={{
+              textAlign: 'center',
+              padding: '3rem 1.5rem',
+              fontFamily: 'var(--font-serif), serif',
+              fontStyle: 'italic',
+              color: BURGUNDY,
+              opacity: 0.7,
+              fontSize: '1.1rem',
+            }}
+          >
+            Noch keine Bestellungen.
+          </div>
+        ) : (
+          <OrdersTable
+            orders={orders.map((o) => ({
+              ...o,
+              recipients: o.recipients as unknown as { name: string } | null,
+            }))}
+          />
+        )}
+      </section>
     </main>
   )
 }

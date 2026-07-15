@@ -30,12 +30,17 @@ function mailHasText(mail: ScheduledMail): boolean {
   return !!(mail.generated_text || mail.generated_subject)
 }
 
+function statusClass(status: string): string {
+  const key = status.toLowerCase()
+  if (['draft', 'pending', 'approved', 'sent', 'failed', 'cancelled'].includes(key)) {
+    return `ll-status ll-status--${key}`
+  }
+  return 'll-status ll-status--draft'
+}
+
 export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] }) {
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
-  // Local overrides so the UI updates immediately after generation, without depending
-  // on router.refresh() re-delivering updated server props (which is unreliable for
-  // freshly-navigated routes in Next.js App Router).
   const [generatedOverrides, setGeneratedOverrides] = useState<Record<string, { subject: string }>>({})
 
   function hasText(mail: ScheduledMail): boolean {
@@ -44,7 +49,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
 
   async function handleGenerate(mail: ScheduledMail) {
     if (!mail.vouchers) {
-      setErrors((e) => ({ ...e, [mail.id]: 'No voucher linked to this mail' }))
+      setErrors((e) => ({ ...e, [mail.id]: 'Kein Voucher verknüpft' }))
       return
     }
     if (hasText(mail)) {
@@ -63,7 +68,7 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
           voucherDescription: mail.vouchers.description ?? '',
         }),
       })
-      const data = await res.json() as { success?: boolean; subject?: string; error?: string }
+      const data = (await res.json()) as { success?: boolean; subject?: string; error?: string }
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Generation failed')
       setGeneratedOverrides((g) => ({ ...g, [mail.id]: { subject: data.subject ?? '' } }))
     } catch (err) {
@@ -74,76 +79,84 @@ export default function ScheduledMailList({ mails }: { mails: ScheduledMail[] })
   }
 
   if (!mails.length) {
-    return <p style={{ color: '#666' }}>No scheduled mails for this order.</p>
+    return (
+      <div
+        className="ll-surface"
+        style={{
+          textAlign: 'center',
+          padding: '2rem',
+          fontFamily: 'var(--font-serif), serif',
+          fontStyle: 'italic',
+          color: 'var(--ll-burgundy)',
+          opacity: 0.7,
+        }}
+      >
+        Keine geplanten Mails.
+      </div>
+    )
   }
 
   return (
-    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', minWidth: 600 }}>
-      <thead>
-        <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-          <th style={{ padding: '0.5rem' }}>Send Date</th>
-          <th style={{ padding: '0.5rem' }}>Status</th>
-          <th style={{ padding: '0.5rem' }}>Voucher</th>
-          <th style={{ padding: '0.5rem' }}>Generated Subject</th>
-          <th style={{ padding: '0.5rem' }}></th>
-        </tr>
-      </thead>
-      <tbody>
-        {mails.map((mail) => (
-          <tr key={mail.id} style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '0.5rem' }}>{mail.send_date}</td>
-            <td style={{ padding: '0.5rem' }}>{mail.status}</td>
-            <td style={{ padding: '0.5rem' }}>{mail.vouchers?.title ?? '—'}</td>
-            <td style={{ padding: '0.5rem', color: '#a09880' }}>
-              {generatedOverrides[mail.id]?.subject ?? getSubject(mail) ?? 'Not generated'}
-              {errors[mail.id] && (
-                <span style={{ color: 'red', marginLeft: '0.5rem', fontSize: '0.8rem' }}>
-                  {errors[mail.id]}
-                </span>
-              )}
-            </td>
-            <td style={{ padding: '0.5rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <button
-                  onClick={() => handleGenerate(mail)}
-                  disabled={loading[mail.id]}
-                  style={{
-                    padding: '0.3rem 0.75rem',
-                    backgroundColor: loading[mail.id] ? '#ccc' : '#111',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: loading[mail.id] ? 'not-allowed' : 'pointer',
-                    fontSize: '0.8rem',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {loading[mail.id] ? 'Generating…' : 'Generate Text'}
-                </button>
-                {hasText(mail) && (
-                  <a
-                    href={`/admin/scheduled-mails/${mail.id}/preview`}
+    <div className="ll-table-wrap">
+      <table className="ll-table" style={{ minWidth: 640 }}>
+        <thead>
+          <tr>
+            <th>Send Date</th>
+            <th>Status</th>
+            <th>Voucher</th>
+            <th>Betreff</th>
+            <th aria-label="Aktionen" />
+          </tr>
+        </thead>
+        <tbody>
+          {mails.map((mail) => (
+            <tr key={mail.id} style={{ cursor: 'default' }}>
+              <td style={{ fontFamily: 'var(--font-serif), serif', fontWeight: 500 }}>{mail.send_date}</td>
+              <td>
+                <span className={statusClass(mail.status)}>{mail.status}</span>
+              </td>
+              <td>{mail.vouchers?.title ?? '—'}</td>
+              <td style={{ fontFamily: 'var(--font-sans), sans-serif', color: 'var(--ll-burgundy)', opacity: 0.85 }}>
+                {generatedOverrides[mail.id]?.subject ?? getSubject(mail) ?? (
+                  <em style={{ opacity: 0.5 }}>nicht generiert</em>
+                )}
+                {errors[mail.id] && (
+                  <div
                     style={{
-                      padding: '0.3rem 0.75rem',
-                      backgroundColor: '#f5f5f0',
-                      color: '#333',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      textDecoration: 'none',
-                      whiteSpace: 'nowrap',
+                      color: 'var(--ll-orange)',
+                      fontSize: '0.75rem',
+                      marginTop: '0.25rem',
                     }}
                   >
-                    Preview
-                  </a>
+                    {errors[mail.id]}
+                  </div>
                 )}
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+              </td>
+              <td>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => handleGenerate(mail)}
+                    disabled={loading[mail.id]}
+                    className="ll-btn ll-btn--sm"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {loading[mail.id] ? 'Generiere …' : 'Text generieren'}
+                  </button>
+                  {hasText(mail) && (
+                    <a
+                      href={`/admin/scheduled-mails/${mail.id}/preview`}
+                      className="ll-btn ll-btn--sm ll-btn--ghost"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      Preview
+                    </a>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

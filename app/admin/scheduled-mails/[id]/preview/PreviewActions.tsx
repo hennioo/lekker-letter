@@ -28,7 +28,7 @@ export default function PreviewActions({
         body: JSON.stringify({ scheduledMailId }),
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => null) as { error?: string } | null
+        const data = (await res.json().catch(() => null)) as { error?: string } | null
         throw new Error(data?.error ?? 'Approve fehlgeschlagen')
       }
       setApproveState('done')
@@ -40,7 +40,6 @@ export default function PreviewActions({
   }
 
   async function handleSendTest() {
-    console.log('[PreviewActions] handleSendTest called, scheduledMailId =', scheduledMailId)
     setSendState('loading')
     try {
       const res = await fetch('/api/send-test-letter', {
@@ -48,9 +47,7 @@ export default function PreviewActions({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduledMailId }),
       })
-      console.log('[PreviewActions] Response status:', res.status)
       const responseBody = await res.json().catch(() => null)
-      console.log('[PreviewActions] Response body:', responseBody)
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(responseBody)}`)
       setSendState('done')
     } catch (err) {
@@ -59,87 +56,79 @@ export default function PreviewActions({
     }
   }
 
-  const statusColor: Record<string, string> = {
-    draft: '#888',
-    pending: '#d97706',
-    approved: '#2d7a3f',
-    sent: '#1a5c8a',
-    failed: '#c0392b',
-    cancelled: '#888',
-  }
+  const statusClassName = (() => {
+    const key = currentStatus.toLowerCase()
+    if (['draft', 'pending', 'approved', 'sent', 'failed', 'cancelled'].includes(key)) {
+      return `ll-status ll-status--${key}`
+    }
+    return 'll-status ll-status--draft'
+  })()
+
+  const alreadyFinal =
+    currentStatus === 'sent' || currentStatus === 'approved' || currentStatus === 'cancelled'
+  const approveDisabled =
+    !hasGeneratedText || alreadyFinal || approveState === 'loading' || approveState === 'done'
+  const approveTitle = !hasGeneratedText
+    ? 'Zuerst Text generieren'
+    : alreadyFinal
+    ? `Mail ist bereits ${currentStatus}`
+    : undefined
+  const approveLabel =
+    approveState === 'loading'
+      ? 'Approving …'
+      : approveState === 'done'
+      ? 'Approved ✓'
+      : currentStatus === 'sent'
+      ? 'Bereits versendet'
+      : currentStatus === 'approved'
+      ? 'Bereits approved'
+      : currentStatus === 'cancelled'
+      ? 'Abgebrochen'
+      : approveState === 'error'
+      ? 'Fehler — Retry'
+      : 'Approve'
+
+  const sendLabel =
+    sendState === 'loading'
+      ? 'Sende …'
+      : sendState === 'done'
+      ? 'Gesendet ✓'
+      : sendState === 'error'
+      ? 'Fehler — Retry'
+      : 'Test an Empfänger senden'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-      <div style={{ fontSize: '0.85rem' }}>
-        Status:{' '}
-        <span style={{ color: statusColor[currentStatus] ?? '#888', fontWeight: 600 }}>
-          {currentStatus}
-        </span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontFamily: 'var(--font-sans), sans-serif', fontSize: '0.9rem' }}>
+        <span style={{ color: 'var(--ll-burgundy)', opacity: 0.6 }}>Status:</span>
+        <span className={statusClassName}>{currentStatus}</span>
       </div>
       {!hasGeneratedText && (
-        <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: '#c0392b' }}>
-          Kein generierter Text vorhanden — bitte zuerst Text generieren.
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--ll-orange)', fontFamily: 'var(--font-sans), sans-serif' }}>
+          Kein generierter Text — bitte zuerst Text generieren.
         </p>
       )}
       {approveError && (
-        <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: '#c0392b' }}>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--ll-orange)', fontFamily: 'var(--font-sans), sans-serif' }}>
           {approveError}
         </p>
       )}
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
-      {(() => {
-        const alreadyFinal = currentStatus === 'sent' || currentStatus === 'approved' || currentStatus === 'cancelled'
-        const isDisabled = !hasGeneratedText || alreadyFinal || approveState === 'loading' || approveState === 'done'
-        const title = !hasGeneratedText
-          ? 'Zuerst Text generieren'
-          : alreadyFinal
-          ? `Mail ist bereits ${currentStatus}`
-          : undefined
-        const bg = approveState === 'done' ? '#2d7a3f'
-          : approveState === 'error' ? '#c0392b'
-          : isDisabled ? '#ccc'
-          : '#111'
-        const label = approveState === 'loading' ? 'Approving…'
-          : approveState === 'done' ? 'Approved ✓'
-          : currentStatus === 'sent' ? 'Bereits versendet'
-          : currentStatus === 'approved' ? 'Bereits approved'
-          : currentStatus === 'cancelled' ? 'Abgebrochen'
-          : approveState === 'error' ? 'Fehler — Retry'
-          : 'Approve'
-        return (
-          <button
-            onClick={handleApprove}
-            disabled={isDisabled}
-            title={title}
-            style={{
-              padding: '0.5rem 1.25rem',
-              backgroundColor: bg,
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: isDisabled ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem',
-            }}
-          >
-            {label}
-          </button>
-        )
-      })()}
-      <button
-        onClick={handleSendTest}
-        disabled={sendState === 'loading'}
-        style={{
-          padding: '0.5rem 1.25rem',
-          backgroundColor: sendState === 'done' ? '#2d7a3f' : sendState === 'error' ? '#c0392b' : sendState === 'loading' ? '#ccc' : '#1a5c8a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: sendState === 'loading' ? 'default' : 'pointer',
-          fontSize: '0.9rem',
-        }}
-      >
-        {sendState === 'loading' ? 'Sending…' : sendState === 'done' ? 'Sent ✓' : sendState === 'error' ? 'Error — Retry' : 'Test an Empfänger senden'}
-      </button>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={handleApprove}
+          disabled={approveDisabled}
+          title={approveTitle}
+          className={`ll-btn ll-btn--sm${approveState === 'done' ? ' ll-btn--yellow' : ''}`}
+        >
+          {approveLabel}
+        </button>
+        <button
+          onClick={handleSendTest}
+          disabled={sendState === 'loading'}
+          className={`ll-btn ll-btn--sm ll-btn--ghost${sendState === 'done' ? ' ll-btn--yellow' : ''}`}
+        >
+          {sendLabel}
+        </button>
       </div>
     </div>
   )
