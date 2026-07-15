@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { LL_COLORS, WaxSealDoodle, EnvelopeDoodle, StarDoodle } from "../../_components/doodles";
+import Confetti from "../../_components/Confetti";
+
+const { orange: ORANGE, burgundy: BURGUNDY, yellow: YELLOW, paper: PAPER } = LL_COLORS;
 
 interface Props {
   orderId: string;
@@ -11,10 +15,6 @@ interface Props {
   startDate: string;
 }
 
-interface FetchError {
-  message: string;
-}
-
 interface ScheduledMail {
   id: string;
   send_date: string;
@@ -22,7 +22,7 @@ interface ScheduledMail {
 }
 
 function formatDate(iso: string): string {
-  if (!iso) return '–';
+  if (!iso) return "–";
   const [year, month, day] = iso.split("-");
   return `${day}.${month}.${year}`;
 }
@@ -33,10 +33,16 @@ function formatMonthYear(iso: string): string {
   return date.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
 }
 
-export default function ConfirmationClient({ orderId, recipientName, giverName, durationMonths, startDate }: Props) {
+export default function ConfirmationClient({
+  orderId,
+  recipientName,
+  giverName,
+  durationMonths,
+  startDate,
+}: Props) {
   const [mails, setMails] = useState<ScheduledMail[]>([]);
   const [loadingMails, setLoadingMails] = useState(true);
-  const [mailsError, setMailsError] = useState<FetchError | null>(null);
+  const [mailsError, setMailsError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchMails() {
@@ -47,202 +53,264 @@ export default function ConfirmationClient({ orderId, recipientName, giverName, 
         .order("send_date", { ascending: true });
 
       if (error || !data) {
-        setMailsError({ message: "Mails konnten nicht geladen werden" });
+        setMailsError("Mails konnten nicht geladen werden");
       } else {
         setMails(data as unknown as ScheduledMail[]);
       }
       setLoadingMails(false);
     }
-
     fetchMails();
   }, [orderId]);
 
   return (
-    <div style={{ backgroundColor: "#0f0f0f", minHeight: "100vh", color: "#f5f0e8" }}>
-      <div style={{ maxWidth: "600px", margin: "0 auto", padding: "0 2rem 6rem" }}>
+    <main style={{ background: PAPER, minHeight: "100vh" }}>
+      <Confetti />
 
-        {/* Nav */}
-        <nav style={{ padding: "2rem 0 0", marginBottom: "4rem" }}>
-          <a href="/" style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.75rem",
-            letterSpacing: "0.2em",
-            color: "#f5f0e8",
-            textDecoration: "none",
-          }}>
-            LEKKER LETTER
-          </a>
+      {/* Hero */}
+      <section
+        style={{
+          background: ORANGE,
+          padding: "clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem) clamp(3rem, 7vw, 5rem)",
+          position: "relative",
+          overflow: "hidden",
+          textAlign: "center",
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
+            fontSize: "0.8rem",
+            letterSpacing: "0.25em",
+            color: YELLOW,
+            fontWeight: 600,
+            textTransform: "uppercase",
+          }}
+        >
+          <a href="/">Lekker Letter</a>
+          <span>Alles bereit</span>
         </nav>
 
-        {/* 1. Success header */}
-        <section style={{ textAlign: "center", marginBottom: "3.5rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1.25rem" }}>🎁</div>
-          <h1 style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: "clamp(1.8rem, 5vw, 2.5rem)",
-            fontWeight: 400,
-            lineHeight: 1.2,
-            color: "#f5f0e8",
-            marginBottom: "0.75rem",
-          }}>
-            Dein Geschenk läuft!
+        <div
+          style={{
+            maxWidth: 640,
+            margin: "clamp(2rem, 5vw, 3rem) auto 0",
+            position: "relative",
+          }}
+        >
+          <div
+            className="ll-sway"
+            style={{
+              position: "absolute",
+              top: "-0.5rem",
+              left: "10%",
+              // @ts-expect-error CSS custom property
+              "--ll-rot": "-12deg",
+              transform: "rotate(-12deg)",
+            }}
+          >
+            <StarDoodle size={48} color={YELLOW} />
+          </div>
+          <div
+            className="ll-sway--reverse"
+            style={{
+              position: "absolute",
+              top: "-0.5rem",
+              right: "10%",
+              // @ts-expect-error CSS custom property
+              "--ll-rot": "16deg",
+              transform: "rotate(16deg)",
+            }}
+          >
+            <StarDoodle size={40} color={BURGUNDY} />
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+            <WaxSealDoodle size={80} />
+          </div>
+
+          <h1 className="ll-h1" style={{ margin: 0 }}>
+            Dein Geschenk
+            <br />
+            läuft!
           </h1>
-          <p style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "1rem",
-            color: "#a09880",
-            lineHeight: 1.6,
-          }}>
-            {durationMonths} {durationMonths === 1 ? "Monat" : "Monate"} für {recipientName} — los geht&apos;s.
+          <p
+            style={{
+              fontFamily: "var(--font-sans), system-ui, sans-serif",
+              fontSize: "1.05rem",
+              color: BURGUNDY,
+              lineHeight: 1.6,
+              margin: "1.25rem auto 0",
+              maxWidth: 460,
+            }}
+          >
+            {durationMonths} {durationMonths === 1 ? "Monat" : "Monate"} für{" "}
+            <strong>{recipientName}</strong> — los geht&apos;s. {giverName} hat alles vorbereitet.
           </p>
-          <p style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.9rem",
-            color: "#4a4540",
-            lineHeight: 1.6,
-            marginTop: "0.5rem",
-          }}>
-            {giverName} hat alles vorbereitet.
-          </p>
-        </section>
+        </div>
+      </section>
 
-        {/* 2. Summary box */}
-        <section style={{
-          border: "1px solid #2a2a2a",
-          backgroundColor: "#141414",
-          padding: "1.5rem",
-          marginBottom: "3rem",
-        }}>
-          {[
-            ["Erste Mail", formatDate(startDate)],
-            ["Empfänger", recipientName],
-            ["Dauer", `${durationMonths} ${durationMonths === 1 ? "Monat" : "Monate"}`],
-          ].map(([label, value]) => (
-            <div key={label} style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              padding: "0.6rem 0",
-              borderBottom: "1px solid #1e1e1e",
-            }}>
-              <span style={{
-                fontFamily: "system-ui, sans-serif",
-                fontSize: "0.75rem",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "#a09880",
-              }}>
-                {label}
-              </span>
-              <span style={{
-                fontFamily: "system-ui, sans-serif",
-                fontSize: "0.95rem",
-                color: "#f5f0e8",
-              }}>
-                {value}
-              </span>
-            </div>
-          ))}
-        </section>
-
-        {/* 3. Timeline */}
-        <section style={{ marginBottom: "3.5rem" }}>
-          <p style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.75rem",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "#a09880",
-            marginBottom: "1rem",
-          }}>
-            So geht&apos;s weiter
-          </p>
-
-          {loadingMails ? (
-            <p style={{
-              fontFamily: "system-ui, sans-serif",
-              fontSize: "0.9rem",
-              color: "#4a4540",
-              padding: "1rem 0",
-            }}>
-              Wird geladen…
-            </p>
-          ) : mailsError ? (
-            <p style={{
-              fontFamily: "system-ui, sans-serif",
-              fontSize: "0.9rem",
-              color: "#4a4540",
-              padding: "1rem 0",
-            }}>
-              {mailsError.message}
-            </p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-              {mails.map((mail, i) => (
-                <div key={mail.id} style={{
-                  display: "grid",
-                  gridTemplateColumns: "7rem 1fr 6rem",
-                  gap: "0 1.25rem",
-                  alignItems: "center",
+      {/* Summary */}
+      <section
+        style={{
+          padding: "clamp(2.5rem, 5vw, 4rem) 1.5rem 0",
+        }}
+      >
+        <div style={{ maxWidth: 620, margin: "0 auto" }}>
+          <div className="ll-surface ll-surface--pink" style={{ marginBottom: "2.5rem" }}>
+            {[
+              ["Erste Mail", formatDate(startDate)],
+              ["Empfänger", recipientName],
+              ["Dauer", `${durationMonths} ${durationMonths === 1 ? "Monat" : "Monate"}`],
+            ].map(([label, value], i, arr) => (
+              <div
+                key={label}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
                   padding: "0.75rem 0",
-                  borderBottom: i < mails.length - 1 ? "1px solid #1e1e1e" : "none",
-                }}>
-                  <span style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "0.9rem",
-                    color: "#c8a96e",
-                    textTransform: "capitalize",
-                  }}>
-                    {formatMonthYear(mail.send_date)}
-                  </span>
-                  <span style={{
-                    fontFamily: "system-ui, sans-serif",
-                    fontSize: "0.9rem",
-                    color: "#f5f0e8",
-                  }}>
-                    {mail.vouchers?.title ?? "—"}
-                  </span>
-                  <span style={{
-                    fontFamily: "system-ui, sans-serif",
-                    fontSize: "0.8rem",
-                    color: "#4a4540",
+                  borderBottom: i < arr.length - 1 ? `1px dashed ${BURGUNDY}` : "none",
+                  gap: "1rem",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-sans), system-ui, sans-serif",
+                    fontSize: "0.72rem",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: BURGUNDY,
+                    opacity: 0.7,
+                    fontWeight: 600,
+                  }}
+                >
+                  {label}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif), serif",
+                    fontSize: "1.05rem",
+                    color: BURGUNDY,
+                    fontWeight: 500,
                     textAlign: "right",
-                  }}>
-                    {formatDate(mail.send_date)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                  }}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
 
-        {/* 4. CTA */}
-        <section style={{ textAlign: "center" }}>
-          <a href={`/gift/${orderId}`} style={{
-            display: "inline-block",
-            backgroundColor: "#c8a96e",
-            color: "#0f0f0f",
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.875rem",
-            letterSpacing: "0.05em",
-            padding: "0.75rem 2rem",
-            textDecoration: "none",
-            borderRadius: 0,
-            marginBottom: "1.25rem",
-          }}>
-            Empfänger-Seite ansehen →
-          </a>
-          <p style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.8rem",
-            color: "#4a4540",
-            margin: 0,
-          }}>
-            Eine Bestätigung wurde an deine E-Mail geschickt.
-          </p>
-        </section>
+          {/* Timeline */}
+          <div style={{ marginBottom: "3rem" }}>
+            <p
+              style={{
+                fontFamily: "var(--font-sans), system-ui, sans-serif",
+                fontSize: "0.72rem",
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                color: ORANGE,
+                fontWeight: 600,
+                marginBottom: "1.25rem",
+              }}
+            >
+              So geht&apos;s weiter
+            </p>
 
-      </div>
-    </div>
+            {loadingMails ? (
+              <p style={{ fontFamily: "var(--font-sans), sans-serif", color: BURGUNDY, opacity: 0.6 }}>
+                Wird geladen …
+              </p>
+            ) : mailsError ? (
+              <p style={{ fontFamily: "var(--font-sans), sans-serif", color: ORANGE }}>
+                {mailsError}
+              </p>
+            ) : (
+              <div>
+                {mails.map((mail, i) => (
+                  <div
+                    key={mail.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "7rem 1fr 6rem",
+                      gap: "0 1.25rem",
+                      alignItems: "center",
+                      padding: "0.9rem 0",
+                      borderBottom:
+                        i < mails.length - 1
+                          ? `1px dashed rgba(120, 2, 40, 0.25)`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-serif), serif",
+                        fontSize: "0.95rem",
+                        color: ORANGE,
+                        fontWeight: 700,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {formatMonthYear(mail.send_date)}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-sans), sans-serif",
+                        fontSize: "0.95rem",
+                        color: BURGUNDY,
+                      }}
+                    >
+                      {mail.vouchers?.title ?? "—"}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-sans), sans-serif",
+                        fontSize: "0.8rem",
+                        color: BURGUNDY,
+                        opacity: 0.55,
+                        textAlign: "right",
+                      }}
+                    >
+                      {formatDate(mail.send_date)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* CTA */}
+          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <a href={`/gift/${orderId}`} className="ll-btn">
+              Empfänger-Seite ansehen →
+            </a>
+            <p
+              style={{
+                fontFamily: "var(--font-sans), sans-serif",
+                fontSize: "0.85rem",
+                color: BURGUNDY,
+                opacity: 0.55,
+                marginTop: "1rem",
+              }}
+            >
+              Eine Bestätigung wurde an deine E-Mail geschickt.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom envelope deco */}
+      <section
+        style={{
+          padding: "clamp(2rem, 4vw, 3rem) 1.5rem clamp(2rem, 4vw, 3rem)",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "center", opacity: 0.5 }}>
+          <EnvelopeDoodle size={100} color={BURGUNDY} />
+        </div>
+      </section>
+    </main>
   );
 }

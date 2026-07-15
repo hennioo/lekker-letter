@@ -22,11 +22,27 @@ export default async function ConfirmationPage({ params }: PageProps) {
 
   if (!order) {
     return (
-      <div style={{ backgroundColor: "#0f0f0f", minHeight: "100vh", color: "#f5f0e8", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "1.1rem", color: "#a09880" }}>
+      <main
+        style={{
+          background: "var(--ll-paper)",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "2rem",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--font-serif), serif",
+            fontSize: "1.2rem",
+            color: "var(--ll-burgundy)",
+            textAlign: "center",
+          }}
+        >
           Bestellung nicht gefunden.
         </p>
-      </div>
+      </main>
     );
   }
 

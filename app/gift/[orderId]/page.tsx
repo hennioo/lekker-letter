@@ -1,4 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { LL_COLORS, WaxSealDoodle, StarDoodle, HeartDoodle } from '../../_components/doodles'
+
+const { orange: ORANGE, burgundy: BURGUNDY, pink: PINK, yellow: YELLOW, paper: PAPER } = LL_COLORS
 
 interface PageProps {
   params: { orderId: string }
@@ -38,16 +41,19 @@ export default async function GiftPage({ params }: PageProps) {
 
   if (!order) {
     return (
-      <main style={{
-        minHeight: '100vh',
-        background: '#0f0f0f',
-        color: '#f5f0e8',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: "Georgia, 'Times New Roman', serif",
-      }}>
-        <p style={{ fontSize: '1.1rem', color: '#a09880' }}>Geschenk nicht gefunden</p>
+      <main
+        style={{
+          minHeight: '100vh',
+          background: PAPER,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem',
+        }}
+      >
+        <p style={{ fontFamily: 'var(--font-serif), serif', fontSize: '1.2rem', color: BURGUNDY }}>
+          Geschenk nicht gefunden
+        </p>
       </main>
     )
   }
@@ -72,194 +78,274 @@ export default async function GiftPage({ params }: PageProps) {
   const occasionEmoji = OCCASION_EMOJI[occasionLabel] ?? '✨'
 
   return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#0f0f0f',
-      color: '#f5f0e8',
-      fontFamily: "Georgia, 'Times New Roman', serif",
-    }}>
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '2.5rem 1.5rem 5rem' }}>
+    <main style={{ background: PAPER, minHeight: '100vh' }}>
+      {/* Hero */}
+      <section
+        style={{
+          background: PINK,
+          padding: 'clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2.5rem) clamp(3rem, 7vw, 5rem)',
+          position: 'relative',
+          overflow: 'hidden',
+          textAlign: 'center',
+        }}
+      >
+        <nav
+          className="ll-nav"
+          style={{
+            fontFamily: 'var(--font-sans), system-ui, sans-serif',
+            fontSize: '0.8rem',
+            letterSpacing: '0.25em',
+            color: BURGUNDY,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+          }}
+        >
+          <a href="/">Lekker Letter</a>
+          <span>Für dich</span>
+        </nav>
 
-        {/* Header */}
-        <header style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <a href="/" style={{
-            color: '#f5f0e8',
-            textDecoration: 'none',
-            fontSize: '0.75rem',
-            letterSpacing: '0.2em',
-            fontFamily: 'system-ui, sans-serif',
-            fontWeight: 500,
-          }}>
-            LEKKER LETTER
-          </a>
-        </header>
+        <div style={{ maxWidth: 640, margin: 'clamp(2rem, 5vw, 3.5rem) auto 0', position: 'relative' }}>
+          <div
+            className="ll-sway"
+            style={{
+              position: 'absolute',
+              top: '-0.5rem',
+              left: '8%',
+              // @ts-expect-error CSS custom property
+              '--ll-rot': '-10deg',
+              transform: 'rotate(-10deg)',
+            }}
+          >
+            <StarDoodle size={48} color={ORANGE} />
+          </div>
+          <div
+            className="ll-sway--reverse"
+            style={{
+              position: 'absolute',
+              top: '-0.5rem',
+              right: '8%',
+              // @ts-expect-error CSS custom property
+              '--ll-rot': '14deg',
+              transform: 'rotate(14deg)',
+            }}
+          >
+            <StarDoodle size={40} color={BURGUNDY} />
+          </div>
 
-        {/* Personal Greeting */}
-        <section style={{ marginBottom: '3rem' }}>
-          <h1 style={{
-            fontSize: 'clamp(1.8rem, 5vw, 2.4rem)',
-            fontWeight: 400,
-            margin: '0 0 0.8rem',
-            lineHeight: 1.2,
-            color: '#f5f0e8',
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <WaxSealDoodle size={80} />
+          </div>
+
+          <h1 className="ll-h1" style={{ margin: 0 }}>
             Hey {recipient?.name ?? 'du'},
           </h1>
-          <p style={{
-            fontSize: '1.05rem',
-            lineHeight: 1.75,
-            margin: '0 0 1.25rem',
-            color: '#d4cfc6',
-            fontFamily: 'system-ui, sans-serif',
-          }}>
-            {order.giver_name} hat dir {order.duration_months} besondere Überraschungen zusammengestellt.
+          <p
+            style={{
+              fontFamily: 'var(--font-sans), system-ui, sans-serif',
+              fontSize: '1.05rem',
+              color: BURGUNDY,
+              lineHeight: 1.65,
+              margin: '1.25rem auto 1.5rem',
+              maxWidth: 460,
+            }}
+          >
+            {order.giver_name} hat dir <strong>{order.duration_months}</strong>{' '}
+            besondere Überraschungen zusammengestellt.
           </p>
-          <span style={{
-            display: 'inline-block',
-            background: 'rgba(200, 169, 110, 0.12)',
-            color: '#c8a96e',
-            border: '1px solid rgba(200, 169, 110, 0.3)',
-            borderRadius: '999px',
-            padding: '0.3rem 1rem',
-            fontSize: '0.85rem',
-            fontFamily: 'system-ui, sans-serif',
-            letterSpacing: '0.02em',
-          }}>
+          <span
+            style={{
+              display: 'inline-block',
+              background: BURGUNDY,
+              color: YELLOW,
+              borderRadius: '999px',
+              padding: '0.45rem 1.25rem',
+              fontSize: '0.85rem',
+              fontFamily: 'var(--font-sans), system-ui, sans-serif',
+              letterSpacing: '0.05em',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+            }}
+          >
             {occasionEmoji} {occasionLabel}
           </span>
-        </section>
+        </div>
+      </section>
 
-        {/* Timeline */}
-        <section>
+      {/* Timeline */}
+      <section style={{ padding: 'clamp(2.5rem, 5vw, 4rem) 1.5rem 0' }}>
+        <div style={{ maxWidth: 620, margin: '0 auto' }}>
           {mailsError ? (
-            <p style={{
-              fontFamily: 'system-ui, sans-serif',
-              fontSize: '0.9rem',
-              color: '#4a4540',
-              padding: '1rem 0',
-            }}>
+            <p style={{ fontFamily: 'var(--font-sans), sans-serif', color: ORANGE }}>
               Überraschungen konnten nicht geladen werden
             </p>
-          ) : (mails ?? []).map((mail, index) => {
-            const isOpen = mail.status === 'sent'
-            const days = daysUntil(mail.send_date, today)
-            const voucher = mail.vouchers as unknown as {
-              title: string | null
-              partner_name: string | null
-              city: string | null
-            } | null
-            const monthYear = formatMonthYear(mail.send_date)
+          ) : (
+            (mails ?? []).map((mail, index) => {
+              const isOpen = mail.status === 'sent'
+              const days = daysUntil(mail.send_date, today)
+              const voucher = mail.vouchers as unknown as {
+                title: string | null
+                partner_name: string | null
+                city: string | null
+              } | null
+              const monthYear = formatMonthYear(mail.send_date)
 
-            return (
-              <div key={mail.id}>
-                {index > 0 && (
-                  <div style={{
-                    borderLeft: '1px solid #c8a96e',
-                    height: 24,
-                    marginLeft: 20,
-                    opacity: 0.35,
-                  }} />
-                )}
+              return (
+                <div key={mail.id}>
+                  {index > 0 && (
+                    <div
+                      style={{
+                        borderLeft: `1px dashed ${BURGUNDY}`,
+                        height: 28,
+                        marginLeft: 24,
+                        opacity: 0.4,
+                      }}
+                    />
+                  )}
 
-                {isOpen ? (
-                  <div style={{
-                    background: 'rgba(200, 169, 110, 0.05)',
-                    border: '1px solid rgba(200, 169, 110, 0.2)',
-                    borderLeft: '3px solid #c8a96e',
-                    borderRadius: 8,
-                    padding: '1.25rem 1.5rem',
-                  }}>
-                    <div style={{
-                      fontSize: '1rem',
-                      color: '#a09880',
-                      marginBottom: '0.4rem',
-                      fontFamily: 'system-ui, sans-serif',
-                      letterSpacing: '0.03em',
-                    }}>
-                      {monthYear}
-                    </div>
-                    <div style={{
-                      fontSize: '1.1rem',
-                      fontWeight: 700,
-                      marginBottom: '0.3rem',
-                      color: '#f5f0e8',
-                    }}>
-                      {voucher?.title ?? 'Überraschung'}
-                    </div>
-                    {(voucher?.partner_name || voucher?.city) && (
-                      <div style={{
-                        fontSize: '0.85rem',
-                        color: '#a09880',
-                        marginBottom: '0.85rem',
-                        fontFamily: 'system-ui, sans-serif',
-                      }}>
-                        {[voucher.partner_name, voucher.city].filter(Boolean).join(' · ')}
+                  {isOpen ? (
+                    <div
+                      className="ll-surface"
+                      style={{
+                        background: PAPER,
+                        borderColor: BURGUNDY,
+                        borderLeft: `4px solid ${ORANGE}`,
+                        padding: '1.5rem 1.75rem',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-sans), sans-serif',
+                          fontSize: '0.72rem',
+                          color: ORANGE,
+                          letterSpacing: '0.25em',
+                          textTransform: 'uppercase',
+                          fontWeight: 600,
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        {monthYear}
                       </div>
-                    )}
-                    <span style={{
-                      display: 'inline-block',
-                      background: 'rgba(74, 222, 128, 0.08)',
-                      color: '#4ade80',
-                      border: '1px solid rgba(74, 222, 128, 0.2)',
-                      borderRadius: '999px',
-                      padding: '0.2rem 0.75rem',
-                      fontSize: '0.75rem',
-                      fontFamily: 'system-ui, sans-serif',
-                      letterSpacing: '0.02em',
-                    }}>
-                      Verfügbar ✓
-                    </span>
-                  </div>
-                ) : (
-                  <div style={{
-                    border: '1px dashed rgba(200, 169, 110, 0.2)',
-                    background: '#141414',
-                    borderRadius: 8,
-                    padding: '1.25rem 1.5rem',
-                  }}>
-                    <div style={{
-                      fontSize: '1rem',
-                      color: '#6b6355',
-                      marginBottom: '0.4rem',
-                      fontFamily: 'system-ui, sans-serif',
-                      letterSpacing: '0.03em',
-                    }}>
-                      {monthYear}
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-serif), serif',
+                          fontSize: '1.3rem',
+                          fontWeight: 700,
+                          color: BURGUNDY,
+                          letterSpacing: '-0.02em',
+                          marginBottom: '0.35rem',
+                        }}
+                      >
+                        {voucher?.title ?? 'Überraschung'}
+                      </div>
+                      {(voucher?.partner_name || voucher?.city) && (
+                        <div
+                          style={{
+                            fontFamily: 'var(--font-sans), sans-serif',
+                            fontSize: '0.9rem',
+                            color: BURGUNDY,
+                            opacity: 0.7,
+                            marginBottom: '1rem',
+                          }}
+                        >
+                          {[voucher.partner_name, voucher.city].filter(Boolean).join(' · ')}
+                        </div>
+                      )}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          background: YELLOW,
+                          color: BURGUNDY,
+                          borderRadius: '999px',
+                          padding: '0.25rem 0.85rem',
+                          fontSize: '0.7rem',
+                          fontFamily: 'var(--font-sans), sans-serif',
+                          letterSpacing: '0.2em',
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                        }}
+                      >
+                        Verfügbar ✓
+                      </span>
                     </div>
-                    <div style={{
-                      fontSize: '1rem',
-                      fontStyle: 'italic',
-                      color: '#5a5248',
-                      marginBottom: '0.8rem',
-                    }}>
-                      ✦ Deine Überraschung
+                  ) : (
+                    <div
+                      style={{
+                        border: `1.5px dashed ${BURGUNDY}`,
+                        borderRadius: 6,
+                        padding: '1.5rem 1.75rem',
+                        background: 'transparent',
+                        opacity: 0.75,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-sans), sans-serif',
+                          fontSize: '0.72rem',
+                          color: BURGUNDY,
+                          opacity: 0.65,
+                          letterSpacing: '0.25em',
+                          textTransform: 'uppercase',
+                          fontWeight: 600,
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        {monthYear}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-serif), serif',
+                          fontSize: '1.1rem',
+                          fontStyle: 'italic',
+                          color: BURGUNDY,
+                          opacity: 0.7,
+                          marginBottom: '0.75rem',
+                        }}
+                      >
+                        ✦ Deine Überraschung
+                      </div>
+                      <span
+                        style={{
+                          color: ORANGE,
+                          fontSize: '0.85rem',
+                          fontFamily: 'var(--font-sans), sans-serif',
+                          fontWeight: 600,
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {days <= 0 ? 'In Kürze' : `In ${days} ${days === 1 ? 'Tag' : 'Tagen'}`}
+                      </span>
                     </div>
-                    <span style={{
-                      color: '#c8a96e',
-                      fontSize: '0.85rem',
-                      fontFamily: 'system-ui, sans-serif',
-                    }}>
-                      {days <= 0 ? 'In Kürze' : `In ${days} ${days === 1 ? 'Tag' : 'Tagen'}`}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </section>
+                  )}
+                </div>
+              )
+            })
+          )}
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer style={{
+      {/* Footer */}
+      <footer
+        style={{
           textAlign: 'center',
-          marginTop: '4rem',
-          color: '#a09880',
-          fontSize: '0.8rem',
-          fontFamily: 'system-ui, sans-serif',
-        }}>
-          Mit ♥ zusammengestellt in Köln
-        </footer>
-
-      </div>
+          padding: 'clamp(3rem, 6vw, 4.5rem) 1.5rem clamp(2rem, 4vw, 3rem)',
+          fontFamily: 'var(--font-sans), sans-serif',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+          <HeartDoodle size={32} color={ORANGE} />
+        </div>
+        <p
+          style={{
+            fontSize: '0.75rem',
+            letterSpacing: '0.25em',
+            color: BURGUNDY,
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}
+        >
+          Zusammengestellt in Köln
+        </p>
+      </footer>
     </main>
   )
 }
